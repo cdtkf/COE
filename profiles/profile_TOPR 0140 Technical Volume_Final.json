@@ -1,0 +1,45 @@
+{
+  "proposal_name": "VA Data Governance and Analytics",
+  "service_areas": [
+    "Data Engineering",
+    "Analytics",
+    "Data Management"
+  ],
+  "domains": [
+    "VA",
+    "DGA",
+    "OEI"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services"
+  ],
+  "technical_competencies": [
+    "IDEA (Integrated Data Engineering and Analytics)",
+    "ETL (Extract-Transform-Load)",
+    "SQL (Structured Query Language)",
+    "SAS (Statistical Analysis System)"
+  ],
+  "past_performance": [],
+  "differentiators": [
+    "Rapid orientation of team to maximize value and stability",
+    "Proactive stance and readiness to deliver immediate value"
+  ],
+  "keywords": [
+    "VA Data Strategy",
+    "VADS",
+    "DGA",
+    "OEI",
+    "IDEA",
+    "ETL",
+    "SQL",
+    "SAS",
+    "PACT Act",
+    "Data Governance Council (DGC)",
+    "Enterprise Information Model (EIM)",
+    "Business Reference Model (BRM)",
+    "Federal Integrated Business Framework (FIBF)"
+  ],
+  "contract_vehicles": [],
+  "set_aside_qualifications": [],
+  "source_file": "TOPR 0140 Technical Volume_Final.pdf"
+}

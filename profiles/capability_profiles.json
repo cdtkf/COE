@@ -1,0 +1,934 @@
+{
+  "metadata": {
+    "generated_at": "2026-04-01T13:50:43Z",
+    "total_proposals": 9,
+    "new_extractions": 9,
+    "model_used": "llama3.1",
+    "status": "complete"
+  },
+  "composite_profile": {
+    "company": "ReefPoint Group",
+    "set_aside_qualifications": [
+      "SDVOSB",
+      "Service-Disabled Veteran-Owned Small Business (SDVOSB)"
+    ],
+    "total_proposals_analyzed": 9,
+    "proposal_names": [
+      "DHA VAULTIS Data Governance",
+      "RPG: A Trusted VA Data Partner",
+      "BUMED PRIME - # N0018925R3039",
+      "BUMED Platform for Readiness and Informatics in Military Environments",
+      "DHA Enterprise IT Services Integrator (EITSI)",
+      "PACT Data Governance and Analytics",
+      "RPG Proposal for IT Services",
+      "VA Data Governance and Analytics",
+      "Taurian Consulting LLC"
+    ],
+    "service_areas": {
+      "Data Governance": 4,
+      "Data Analytics": 2,
+      "Data Engineering": 2,
+      "Metadata Management": 1,
+      "Fraud Prevention Services": 1,
+      "Health IT": 1,
+      "Agile Development": 1,
+      "Health Informatics": 1,
+      "Digital Transformation": 1,
+      "Operational Medicine Solutions": 1,
+      "Enterprise IT Services": 1,
+      "Cybersecurity": 1,
+      "Endpoint Management": 1,
+      "Identity Engineering": 1,
+      "Configuration/Change Enablement": 1,
+      "Application Service / Software Development": 1,
+      "Cybersecurity Services": 1,
+      "Data Governance and Management": 1,
+      "IT Consulting and Advisory Services": 1,
+      "Analytics": 1,
+      "Data Management": 1,
+      "Application Hosting": 1,
+      "Systems Administration Support": 1
+    },
+    "domains": {
+      "VA": 7,
+      "DoD Health": 4,
+      "DHA": 2,
+      "Navy": 2,
+      "BUMED": 2,
+      "Army": 1,
+      "VHA": 1,
+      "NCA": 1,
+      "DoD": 1,
+      "Department of Navy": 1,
+      "Bureau of Medicine and Surgery (BUMED)": 1,
+      "Military Health System": 1,
+      "Defense Health Agency (DHA)": 1,
+      "DGA (Office of Data Governance and Analytics)": 1,
+      "DGA": 1,
+      "OEI": 1,
+      "Federal Government": 1
+    },
+    "naics_codes": {
+      "541512 - Computer Systems Design Services": 8,
+      "541513 - Software Development and Implementation": 1,
+      "{'code': '541512', 'description': 'Computer Systems Design Services'}": 1,
+      "{'code': '541513', 'description': 'Software Development and Design Services'}": 1,
+      "517919 - Other Telecommunications": 1,
+      "511210 - Software Publishers": 1,
+      "541513 - Software Development and Implementation Services": 1
+    },
+    "technical_competencies": {
+      "Agile Development": 2,
+      "CI/CD Pipelines": 2,
+      "IDEA (Integrated Data Engineering and Analytics)": 2,
+      "ETL (Extract-Transform-Load)": 2,
+      "SQL (Structured Query Language)": 2,
+      "SharePoint": 1,
+      "PowerApps": 1,
+      "Power Automate": 1,
+      "APIs": 1,
+      "ETL": 1,
+      "Transport Layer Security (TLS)": 1,
+      "Platform-native encryption at rest": 1,
+      "ML models": 1,
+      "Dynamic visualizations": 1,
+      "Dashboards": 1,
+      "Statistical models": 1,
+      "Data stewardship": 1,
+      "Subject-matter expertise": 1,
+      "DevSecOps": 1,
+      "Data Fabric": 1,
+      "Data Mesh": 1,
+      "Power BI": 1,
+      "Dynamics 365 Customer Service": 1,
+      "Microservices": 1,
+      "Containerization": 1,
+      "Automated Testing": 1,
+      "Atlassian Jira": 1,
+      "Cybersecurity assessments": 1,
+      "Integration reviews": 1,
+      "Scenario-based simulations": 1,
+      "Automated deployments": 1,
+      "Incident management": 1,
+      "System health monitoring": 1,
+      "RMF compliance and ZT goals": 1,
+      "Risk assessments, vulnerability management, and continuous monitoring": 1,
+      "Continuous deployment and Agile workflows": 1,
+      "MECM, Intune, and GPOs": 1,
+      "NIST 800-53 rev5": 1,
+      "ICAM standards": 1,
+      "API (Application Programming Interface)": 1,
+      "PMBOK (Project Management Body of Knowledge)": 1,
+      "Agile project management": 1,
+      "PowerBI": 1,
+      "Palantir": 1,
+      "Tableau": 1,
+      "Esri ArcGIS": 1,
+      "Jira": 1,
+      "Azure": 1,
+      "CI/CD": 1,
+      "HCD": 1,
+      "Continuous Integration and Continuous Deployment": 1,
+      "SAS (Statistical Analysis System)": 1,
+      "Kubernetes/OpenShift": 1,
+      "AWS App2Container": 1,
+      "Checkov or HashiCorp Sentinel": 1,
+      "DynaTrace and Splunk": 1,
+      "GitLab": 1,
+      "CMMI L3 (SVC)": 1,
+      "ITIL's PDCA cycle": 1
+    },
+    "past_performance": [
+      {
+        "agency": "VA",
+        "contract_name": "PACT Act DMF LOE",
+        "outcome": "Established trust and credibility for RPG in the VA Data Community, offering BDP&R an avenue to knock down data siloes through collaboration."
+      },
+      {
+        "agency": "VA",
+        "contract_name": "CVAD IPT",
+        "outcome": "Developed business rules for a trusted, authoritative, Veteran-centric dataset for core Veteran data elements to support enterprise analytics, research, and operational decision support."
+      },
+      {
+        "agency": "BUMED",
+        "contract_name": "EXMED FoS LCSP",
+        "outcome": "Implemented the EXMED FoS LCSP, collaborating with OPNAV N4L4, BUMED, and PMS 408 for readiness"
+      },
+      {
+        "agency": "DHA",
+        "contract_name": "MHS GENESIS",
+        "outcome": "Managed hundreds of major/minor releases for DHA on MHS GENESIS ensuring high quality"
+      },
+      {
+        "agency": "DHA",
+        "contract_name": "EITSI contract",
+        "outcome": "Delivered seamless partner onboarding and operational continuity through unified ZT implementation, strategic alignment, and agile support."
+      },
+      {
+        "agency": "Navy Bureau of Medicine and Surgery (BUMED)",
+        "contract_name": "LIMDU SMART contract",
+        "outcome": "Managed 150-300 Limited Duty (LIMDU) SMART support tickets monthly, triaging by tier"
+      },
+      {
+        "agency": "VA",
+        "contract_name": "PACT Data Governance and Analytics",
+        "outcome": "Delivered timely, trusted data objects, analytics products, and data management to DGA."
+      },
+      {
+        "agency": "VA OEI",
+        "contract_name": "Development of dynamic visualizations for initiatives across the enterprise",
+        "outcome": "Provided information on initiatives across the enterprise using dynamic visualizations"
+      },
+      {
+        "agency": "DHA",
+        "contract_name": "Support for DHA Enterprise Desktop and Identity, Credential, and Access Management (ICAM) efforts",
+        "outcome": "Supported DHA ICAM efforts related to DoDs Risk Management Framework"
+      },
+      {
+        "agency": "VA",
+        "contract_name": "TBM implementation",
+        "outcome": "Maintained system uptime while integrating over 55 unified applications for budget and investment management."
+      },
+      {
+        "agency": "Federal Law Enforcement Agency",
+        "contract_name": "Migrated static mission performance tracking to a dynamic business intelligence (BI) platform",
+        "outcome": "Enabled real-time access to operational data for over 1,000 field leaders"
+      }
+    ],
+    "differentiators": {
+      "Catalog-ready export capabilities": 1,
+      "Standardized data source with ownership and classification": 1,
+      "Unparalleled experience establishing and running VA Working Groups and Integrated Project Teams (IPTs)": 1,
+      "Establishing trust and credibility in the VA Data Community": 1,
+      "Comprehensive, data-driven strategy to address literacy gaps, hardware obsolescence, and disconnected operational challenges": 1,
+      "Rapid-cycle demonstrations at the METC, CANES labs, shipboard/ashore settings, CWIX, and schoolhouses": 1,
+      "Unique insights into functional gaps, user needs, and transition planning required to successfully coordinate across the JOMIS application lifecycle": 1,
+      "Proven track record in Navy Medicine and support of existing transformation and modernization efforts": 1,
+      "Certified personnel, transparent governance, and advanced reporting ensure operational excellence and 24/7 mission readiness.": 1,
+      "Supports RMF compliance and ZT goals through risk assessments, vulnerability management, and continuous monitoring across key systems like DHAMPK-DaaS, and MED365.": 1,
+      "Rapid orientation of team and development of custom solutions tailored to maximize value and stability.": 1,
+      "Proactive stance and readiness to deliver immediate value.": 1,
+      "Agile thinking and analytic rigor": 1,
+      "Conversation at all levels with stakeholders": 1,
+      "Training for personnel to ensure proper operation, maintenance, and testing of systems, applications, and products": 1,
+      "Rapid orientation of team to maximize value and stability": 1,
+      "Proactive stance and readiness to deliver immediate value": 1,
+      "Use of Value Stream Mapping as a strategic enabler": 1,
+      "Integration of AI/ML available in DynaTrace and Splunk for deep and smart insight": 1
+    },
+    "keywords": {
+      "VA": 5,
+      "Data Governance": 3,
+      "ETL": 3,
+      "Agile Development": 2,
+      "CI/CD Pipelines": 2,
+      "BUMED": 2,
+      "DHA": 2,
+      "DoD Health": 2,
+      "Cybersecurity": 2,
+      "DGA": 2,
+      "IDEA": 2,
+      "SQL": 2,
+      "VAULTIS": 1,
+      "Metadata Management": 1,
+      "SharePoint": 1,
+      "PowerApps": 1,
+      "Power Automate": 1,
+      "APIs": 1,
+      "Transport Layer Security (TLS)": 1,
+      "Platform-native encryption at rest": 1,
+      "CAC/PIV + MFA": 1,
+      "RBAC/Attribute-Based Access Control (ABAC)": 1,
+      "DoW IL4/IL5 standards": 1,
+      "HIPAA": 1,
+      "NIST SP 800-53": 1,
+      "DHA security mandates": 1,
+      "VHA": 1,
+      "NCA": 1,
+      "DoD": 1,
+      "Fraud Prevention Services": 1,
+      "ML models": 1,
+      "Dynamic visualizations": 1,
+      "Dashboards": 1,
+      "Statistical models": 1,
+      "PACT Act DMF LOE": 1,
+      "CVAD IPT": 1,
+      "BUMED PRIME": 1,
+      "N0018925R3039": 1,
+      "DevSecOps": 1,
+      "Data Fabric": 1,
+      "Data Mesh": 1,
+      "Power BI": 1,
+      "Dynamics 365 Customer Service": 1,
+      "Microservices": 1,
+      "Containerization": 1,
+      "Automated Testing": 1,
+      "EXMED FoS LCSP": 1,
+      "MHS GENESIS": 1,
+      "TYCOMs": 1,
+      "NAVMED": 1,
+      "OPNAV N0931": 1,
+      "DHA J-6": 1,
+      "PEO DHMS": 1,
+      "PRIME": 1,
+      "JOMIS": 1,
+      "NEHSS": 1,
+      "Operational Forces": 1,
+      "Health Informatics": 1,
+      "Digital Transformation": 1,
+      "Data Analytics": 1,
+      "Operational Medicine Solutions": 1,
+      "Atlassian Jira": 1,
+      "Cybersecurity assessments": 1,
+      "Integration reviews": 1,
+      "Scenario-based simulations": 1,
+      "Automated deployments": 1,
+      "Incident management": 1,
+      "System health monitoring": 1,
+      "EITSI": 1,
+      "RMF": 1,
+      "ZT": 1,
+      "ICAM": 1,
+      "NIST 800-53 rev5": 1,
+      "MECM": 1,
+      "Intune": 1,
+      "GPOs": 1,
+      "Agile": 1,
+      "Continuous deployment": 1,
+      "Endpoint Management": 1,
+      "Identity Engineering": 1,
+      "Configuration/Change Enablement": 1,
+      "PACT": 1,
+      "API": 1,
+      "PMBOK": 1,
+      "ADS (Authoritative Data Sources)": 1,
+      "AMAS (Automated Monument System)": 1,
+      "BOSS (Burial Operations Support System)": 1,
+      "CDW (Corporate Data Warehouse)": 1,
+      "CxDW (Customer Experience Data Warehouse)": 1,
+      "DGC (Data Governance Council)": 1,
+      "DMF (Data Modeling and Forecasting)": 1,
+      "DSCoP (Data Science Community of Practice)": 1,
+      "EDC (Enterprise Data Catalog)": 1,
+      "ILER (Individual Longitudinal Exposure Record)": 1,
+      "ITRP (Information Technology Request Portal)": 1,
+      "KAQ(s) (Key Analytical Question(s))": 1,
+      "LOE (Lane of Effort)": 1,
+      "MCAO (Management Cost Accounting Office)": 1,
+      "MPI (Master Person Index)": 1,
+      "OEI (Office of Enterprise Integration)": 1,
+      "OIT (Office of Information Technology)": 1,
+      "VADIR (VA/Department of Defense Identity Repository)": 1,
+      "VASRD (Veterans Affairs Schedule for Rating Disabilities)": 1,
+      "VBA (Veterans Benefits Administration)": 1,
+      "VHA (Veterans Health Administration)": 1,
+      "VSSC (VHA Support Service Center Capital Assets)": 1,
+      "IT services": 1,
+      "Application development": 1,
+      "Agile project management": 1,
+      "PowerBI": 1,
+      "Palantir": 1,
+      "Tableau": 1,
+      "Esri ArcGIS": 1,
+      "Jira": 1,
+      "Azure": 1,
+      "CI/CD": 1,
+      "HCD": 1,
+      "Continuous Integration and Continuous Deployment": 1,
+      "Navy": 1,
+      "VA Data Strategy": 1,
+      "VADS": 1,
+      "OEI": 1,
+      "SAS": 1,
+      "PACT Act": 1,
+      "Data Governance Council (DGC)": 1,
+      "Enterprise Information Model (EIM)": 1,
+      "Business Reference Model (BRM)": 1,
+      "Federal Integrated Business Framework (FIBF)": 1,
+      "Taurian Consulting LLC": 1,
+      "Federal Government": 1,
+      "Application Hosting": 1,
+      "Systems Administration Support": 1,
+      "Kubernetes/OpenShift": 1,
+      "AWS App2Container": 1,
+      "Checkov or HashiCorp Sentinel": 1,
+      "DynaTrace and Splunk": 1,
+      "GitLab": 1,
+      "CMMI L3 (SVC)": 1,
+      "ITIL's PDCA cycle": 1,
+      "Value Stream Mapping": 1,
+      "AI/ML": 1
+    },
+    "contract_vehicles": {
+      "IDIQ": 3,
+      "GWAC": 1,
+      "SeaPort Contract Number: N0017819D8405": 1,
+      "NASA SEWP VI": 1
+    }
+  },
+  "individual_profiles": [
+    {
+      "proposal_name": "DHA VAULTIS Data Governance",
+      "service_areas": [
+        "Data Governance",
+        "Metadata Management"
+      ],
+      "domains": [
+        "VA",
+        "DHA",
+        "DoD Health",
+        "Army"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services"
+      ],
+      "technical_competencies": [
+        "SharePoint",
+        "PowerApps",
+        "Power Automate",
+        "APIs",
+        "ETL",
+        "Transport Layer Security (TLS)",
+        "Platform-native encryption at rest"
+      ],
+      "past_performance": [],
+      "differentiators": [
+        "Catalog-ready export capabilities",
+        "Standardized data source with ownership and classification"
+      ],
+      "keywords": [
+        "VAULTIS",
+        "Data Governance",
+        "Metadata Management",
+        "SharePoint",
+        "PowerApps",
+        "Power Automate",
+        "APIs",
+        "ETL",
+        "Transport Layer Security (TLS)",
+        "Platform-native encryption at rest",
+        "CAC/PIV + MFA",
+        "RBAC/Attribute-Based Access Control (ABAC)",
+        "DoW IL4/IL5 standards",
+        "HIPAA",
+        "NIST SP 800-53",
+        "DHA security mandates"
+      ],
+      "contract_vehicles": [],
+      "set_aside_qualifications": [],
+      "source_file": "BAFO_FINAL_DHA_VAULTIS_Data_Governance_Volume_I_Technical.pdf"
+    },
+    {
+      "proposal_name": "RPG: A Trusted VA Data Partner",
+      "service_areas": [
+        "Data Governance",
+        "Fraud Prevention Services"
+      ],
+      "domains": [
+        "VA",
+        "VHA",
+        "NCA",
+        "DoD"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services"
+      ],
+      "technical_competencies": [
+        "ML models",
+        "Dynamic visualizations",
+        "Dashboards",
+        "Statistical models",
+        "Data stewardship",
+        "Subject-matter expertise"
+      ],
+      "past_performance": [
+        {
+          "agency": "VA",
+          "contract_name": "PACT Act DMF LOE",
+          "outcome": "Established trust and credibility for RPG in the VA Data Community, offering BDP&R an avenue to knock down data siloes through collaboration."
+        },
+        {
+          "agency": "VA",
+          "contract_name": "CVAD IPT",
+          "outcome": "Developed business rules for a trusted, authoritative, Veteran-centric dataset for core Veteran data elements to support enterprise analytics, research, and operational decision support."
+        }
+      ],
+      "differentiators": [
+        "Unparalleled experience establishing and running VA Working Groups and Integrated Project Teams (IPTs)",
+        "Establishing trust and credibility in the VA Data Community"
+      ],
+      "keywords": [
+        "VA",
+        "VHA",
+        "NCA",
+        "DoD",
+        "Data Governance",
+        "Fraud Prevention Services",
+        "ML models",
+        "Dynamic visualizations",
+        "Dashboards",
+        "Statistical models",
+        "PACT Act DMF LOE",
+        "CVAD IPT"
+      ],
+      "contract_vehicles": [],
+      "set_aside_qualifications": [],
+      "source_file": "RFI Response VBA Fraud Prevention Services (1) (1).pdf"
+    },
+    {
+      "proposal_name": "BUMED PRIME - # N0018925R3039",
+      "service_areas": [
+        "Health IT",
+        "Data Governance",
+        "Agile Development"
+      ],
+      "domains": [
+        "DoD Health",
+        "Navy",
+        "BUMED"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services",
+        "541513 - Software Development and Implementation"
+      ],
+      "technical_competencies": [
+        "Agile Development",
+        "DevSecOps",
+        "Data Fabric",
+        "Data Mesh",
+        "Power BI",
+        "Dynamics 365 Customer Service",
+        "Microservices",
+        "Containerization",
+        "CI/CD Pipelines",
+        "Automated Testing"
+      ],
+      "past_performance": [
+        {
+          "agency": "BUMED",
+          "contract_name": "EXMED FoS LCSP",
+          "outcome": "Implemented the EXMED FoS LCSP, collaborating with OPNAV N4L4, BUMED, and PMS 408 for readiness"
+        },
+        {
+          "agency": "DHA",
+          "contract_name": "MHS GENESIS",
+          "outcome": "Managed hundreds of major/minor releases for DHA on MHS GENESIS ensuring high quality"
+        }
+      ],
+      "differentiators": [
+        "Comprehensive, data-driven strategy to address literacy gaps, hardware obsolescence, and disconnected operational challenges",
+        "Rapid-cycle demonstrations at the METC, CANES labs, shipboard/ashore settings, CWIX, and schoolhouses"
+      ],
+      "keywords": [
+        "BUMED PRIME",
+        "N0018925R3039",
+        "Agile Development",
+        "DevSecOps",
+        "Data Fabric",
+        "Data Mesh",
+        "Power BI",
+        "Dynamics 365 Customer Service",
+        "Microservices",
+        "Containerization",
+        "CI/CD Pipelines",
+        "Automated Testing",
+        "EXMED FoS LCSP",
+        "MHS GENESIS",
+        "TYCOMs",
+        "NAVMED",
+        "OPNAV N0931",
+        "DHA J-6",
+        "PEO DHMS"
+      ],
+      "contract_vehicles": [
+        "IDIQ",
+        "GWAC"
+      ],
+      "set_aside_qualifications": [],
+      "source_file": "RPG BUMED PRIME RFQ  N0018925R3039 Step Two Non Cost Volume I pdf.pdf"
+    },
+    {
+      "proposal_name": "BUMED Platform for Readiness and Informatics in Military Environments",
+      "service_areas": [
+        "Health Informatics",
+        "Digital Transformation",
+        "Data Analytics",
+        "Operational Medicine Solutions"
+      ],
+      "domains": [
+        "Department of Navy",
+        "Bureau of Medicine and Surgery (BUMED)",
+        "Military Health System",
+        "Defense Health Agency (DHA)"
+      ],
+      "naics_codes": [
+        {
+          "code": "541512",
+          "description": "Computer Systems Design Services"
+        },
+        {
+          "code": "541513",
+          "description": "Software Development and Design Services"
+        }
+      ],
+      "technical_competencies": [
+        "Agile development",
+        "CI/CD pipelines",
+        "Atlassian Jira",
+        "Cybersecurity assessments",
+        "Integration reviews",
+        "Scenario-based simulations",
+        "Automated deployments",
+        "Incident management",
+        "System health monitoring"
+      ],
+      "past_performance": [],
+      "differentiators": [
+        "Unique insights into functional gaps, user needs, and transition planning required to successfully coordinate across the JOMIS application lifecycle",
+        "Proven track record in Navy Medicine and support of existing transformation and modernization efforts"
+      ],
+      "keywords": [
+        "BUMED",
+        "PRIME",
+        "JOMIS",
+        "NEHSS",
+        "Operational Forces",
+        "Health Informatics",
+        "Digital Transformation",
+        "Data Analytics",
+        "Operational Medicine Solutions",
+        "Agile development",
+        "CI/CD pipelines",
+        "Atlassian Jira",
+        "Cybersecurity assessments",
+        "Integration reviews",
+        "Scenario-based simulations",
+        "Automated deployments",
+        "Incident management",
+        "System health monitoring"
+      ],
+      "contract_vehicles": [
+        "SeaPort Contract Number: N0017819D8405"
+      ],
+      "set_aside_qualifications": [
+        "Service-Disabled Veteran-Owned Small Business (SDVOSB)"
+      ],
+      "source_file": "RPG BUMED PRIME Step One Response.pdf"
+    },
+    {
+      "proposal_name": "DHA Enterprise IT Services Integrator (EITSI)",
+      "service_areas": [
+        "Enterprise IT Services",
+        "Cybersecurity",
+        "Endpoint Management",
+        "Identity Engineering",
+        "Configuration/Change Enablement"
+      ],
+      "domains": [
+        "DoD Health",
+        "VA"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services",
+        "517919 - Other Telecommunications",
+        "511210 - Software Publishers"
+      ],
+      "technical_competencies": [
+        "RMF compliance and ZT goals",
+        "Risk assessments, vulnerability management, and continuous monitoring",
+        "Continuous deployment and Agile workflows",
+        "MECM, Intune, and GPOs",
+        "NIST 800-53 rev5",
+        "ICAM standards"
+      ],
+      "past_performance": [
+        {
+          "agency": "DHA",
+          "contract_name": "EITSI contract",
+          "outcome": "Delivered seamless partner onboarding and operational continuity through unified ZT implementation, strategic alignment, and agile support."
+        },
+        {
+          "agency": "Navy Bureau of Medicine and Surgery (BUMED)",
+          "contract_name": "LIMDU SMART contract",
+          "outcome": "Managed 150-300 Limited Duty (LIMDU) SMART support tickets monthly, triaging by tier"
+        }
+      ],
+      "differentiators": [
+        "Certified personnel, transparent governance, and advanced reporting ensure operational excellence and 24/7 mission readiness.",
+        "Supports RMF compliance and ZT goals through risk assessments, vulnerability management, and continuous monitoring across key systems like DHAMPK-DaaS, and MED365."
+      ],
+      "keywords": [
+        "DHA",
+        "VA",
+        "DoD Health",
+        "EITSI",
+        "RMF",
+        "ZT",
+        "ICAM",
+        "NIST 800-53 rev5",
+        "MECM",
+        "Intune",
+        "GPOs",
+        "Agile",
+        "Continuous deployment",
+        "Cybersecurity",
+        "Endpoint Management",
+        "Identity Engineering",
+        "Configuration/Change Enablement"
+      ],
+      "contract_vehicles": [
+        "IDIQ"
+      ],
+      "set_aside_qualifications": [],
+      "source_file": "RPG Volume II (1).pdf"
+    },
+    {
+      "proposal_name": "PACT Data Governance and Analytics",
+      "service_areas": [
+        "Data Governance",
+        "Data Analytics",
+        "Data Engineering"
+      ],
+      "domains": [
+        "VA",
+        "DGA (Office of Data Governance and Analytics)"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services"
+      ],
+      "technical_competencies": [
+        "IDEA (Integrated Data Engineering and Analytics)",
+        "API (Application Programming Interface)",
+        "ETL (Extract-Transform-Load)",
+        "SQL (Structured Query Language)",
+        "PMBOK (Project Management Body of Knowledge)"
+      ],
+      "past_performance": [
+        {
+          "agency": "VA",
+          "contract_name": "PACT Data Governance and Analytics",
+          "outcome": "Delivered timely, trusted data objects, analytics products, and data management to DGA."
+        }
+      ],
+      "differentiators": [
+        "Rapid orientation of team and development of custom solutions tailored to maximize value and stability.",
+        "Proactive stance and readiness to deliver immediate value."
+      ],
+      "keywords": [
+        "PACT",
+        "VA",
+        "DGA",
+        "IDEA",
+        "API",
+        "ETL",
+        "SQL",
+        "PMBOK",
+        "ADS (Authoritative Data Sources)",
+        "AMAS (Automated Monument System)",
+        "BOSS (Burial Operations Support System)",
+        "CDW (Corporate Data Warehouse)",
+        "CxDW (Customer Experience Data Warehouse)",
+        "DGC (Data Governance Council)",
+        "DMF (Data Modeling and Forecasting)",
+        "DSCoP (Data Science Community of Practice)",
+        "EDC (Enterprise Data Catalog)",
+        "ILER (Individual Longitudinal Exposure Record)",
+        "ITRP (Information Technology Request Portal)",
+        "KAQ(s) (Key Analytical Question(s))",
+        "LOE (Lane of Effort)",
+        "MCAO (Management Cost Accounting Office)",
+        "MPI (Master Person Index)",
+        "OEI (Office of Enterprise Integration)",
+        "OIT (Office of Information Technology)",
+        "VADIR (VA/Department of Defense Identity Repository)",
+        "VASRD (Veterans Affairs Schedule for Rating Disabilities)",
+        "VBA (Veterans Benefits Administration)",
+        "VHA (Veterans Health Administration)",
+        "VSSC (VHA Support Service Center Capital Assets)"
+      ],
+      "contract_vehicles": [
+        "IDIQ"
+      ],
+      "set_aside_qualifications": [],
+      "source_file": "ReefPoint Group LLC Tech.pdf"
+    },
+    {
+      "proposal_name": "RPG Proposal for IT Services",
+      "service_areas": [
+        "Application Service / Software Development",
+        "Cybersecurity Services",
+        "Data Governance and Management",
+        "IT Consulting and Advisory Services"
+      ],
+      "domains": [
+        "VA",
+        "DHA",
+        "DoD Health",
+        "Navy",
+        "BUMED"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services",
+        "541513 - Software Development and Implementation Services"
+      ],
+      "technical_competencies": [
+        "Agile project management",
+        "PowerBI",
+        "Palantir",
+        "Tableau",
+        "Esri ArcGIS",
+        "Jira",
+        "Azure",
+        "CI/CD",
+        "HCD",
+        "Continuous Integration and Continuous Deployment"
+      ],
+      "past_performance": [
+        {
+          "agency": "VA OEI",
+          "contract_name": "Development of dynamic visualizations for initiatives across the enterprise",
+          "outcome": "Provided information on initiatives across the enterprise using dynamic visualizations"
+        },
+        {
+          "agency": "DHA",
+          "contract_name": "Support for DHA Enterprise Desktop and Identity, Credential, and Access Management (ICAM) efforts",
+          "outcome": "Supported DHA ICAM efforts related to DoDs Risk Management Framework"
+        }
+      ],
+      "differentiators": [
+        "Agile thinking and analytic rigor",
+        "Conversation at all levels with stakeholders",
+        "Training for personnel to ensure proper operation, maintenance, and testing of systems, applications, and products"
+      ],
+      "keywords": [
+        "IT services",
+        "Application development",
+        "Cybersecurity",
+        "Data governance",
+        "Agile project management",
+        "PowerBI",
+        "Palantir",
+        "Tableau",
+        "Esri ArcGIS",
+        "Jira",
+        "Azure",
+        "CI/CD",
+        "HCD",
+        "Continuous Integration and Continuous Deployment",
+        "VA",
+        "DHA",
+        "DoD Health",
+        "Navy",
+        "BUMED"
+      ],
+      "contract_vehicles": [
+        "NASA SEWP VI"
+      ],
+      "set_aside_qualifications": [],
+      "source_file": "ReefPoint Group_Category B_Technical Approach.pdf"
+    },
+    {
+      "proposal_name": "VA Data Governance and Analytics",
+      "service_areas": [
+        "Data Engineering",
+        "Analytics",
+        "Data Management"
+      ],
+      "domains": [
+        "VA",
+        "DGA",
+        "OEI"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services"
+      ],
+      "technical_competencies": [
+        "IDEA (Integrated Data Engineering and Analytics)",
+        "ETL (Extract-Transform-Load)",
+        "SQL (Structured Query Language)",
+        "SAS (Statistical Analysis System)"
+      ],
+      "past_performance": [],
+      "differentiators": [
+        "Rapid orientation of team to maximize value and stability",
+        "Proactive stance and readiness to deliver immediate value"
+      ],
+      "keywords": [
+        "VA Data Strategy",
+        "VADS",
+        "DGA",
+        "OEI",
+        "IDEA",
+        "ETL",
+        "SQL",
+        "SAS",
+        "PACT Act",
+        "Data Governance Council (DGC)",
+        "Enterprise Information Model (EIM)",
+        "Business Reference Model (BRM)",
+        "Federal Integrated Business Framework (FIBF)"
+      ],
+      "contract_vehicles": [],
+      "set_aside_qualifications": [],
+      "source_file": "TOPR 0140 Technical Volume_Final.pdf"
+    },
+    {
+      "proposal_name": "Taurian Consulting LLC",
+      "service_areas": [
+        "Application Hosting",
+        "Systems Administration Support"
+      ],
+      "domains": [
+        "VA",
+        "Federal Government"
+      ],
+      "naics_codes": [
+        "541512 - Computer Systems Design Services"
+      ],
+      "technical_competencies": [
+        "Kubernetes/OpenShift",
+        "AWS App2Container",
+        "Checkov or HashiCorp Sentinel",
+        "DynaTrace and Splunk",
+        "GitLab",
+        "CMMI L3 (SVC)",
+        "ITIL's PDCA cycle"
+      ],
+      "past_performance": [
+        {
+          "agency": "VA",
+          "contract_name": "TBM implementation",
+          "outcome": "Maintained system uptime while integrating over 55 unified applications for budget and investment management."
+        },
+        {
+          "agency": "Federal Law Enforcement Agency",
+          "contract_name": "Migrated static mission performance tracking to a dynamic business intelligence (BI) platform",
+          "outcome": "Enabled real-time access to operational data for over 1,000 field leaders"
+        }
+      ],
+      "differentiators": [
+        "Use of Value Stream Mapping as a strategic enabler",
+        "Integration of AI/ML available in DynaTrace and Splunk for deep and smart insight"
+      ],
+      "keywords": [
+        "Taurian Consulting LLC",
+        "VA",
+        "Federal Government",
+        "Application Hosting",
+        "Systems Administration Support",
+        "Kubernetes/OpenShift",
+        "AWS App2Container",
+        "Checkov or HashiCorp Sentinel",
+        "DynaTrace and Splunk",
+        "GitLab",
+        "CMMI L3 (SVC)",
+        "ITIL's PDCA cycle",
+        "Value Stream Mapping",
+        "AI/ML"
+      ],
+      "contract_vehicles": [],
+      "set_aside_qualifications": [],
+      "source_file": "VA IO Franchise Fund RFI (1).pdf"
+    }
+  ]
+}

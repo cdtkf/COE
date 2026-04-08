@@ -1,0 +1,72 @@
+{
+  "proposal_name": "BUMED PRIME - # N0018925R3039",
+  "service_areas": [
+    "Health IT",
+    "Data Governance",
+    "Agile Development"
+  ],
+  "domains": [
+    "DoD Health",
+    "Navy",
+    "BUMED"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services",
+    "541513 - Software Development and Implementation"
+  ],
+  "technical_competencies": [
+    "Agile Development",
+    "DevSecOps",
+    "Data Fabric",
+    "Data Mesh",
+    "Power BI",
+    "Dynamics 365 Customer Service",
+    "Microservices",
+    "Containerization",
+    "CI/CD Pipelines",
+    "Automated Testing"
+  ],
+  "past_performance": [
+    {
+      "agency": "BUMED",
+      "contract_name": "EXMED FoS LCSP",
+      "outcome": "Implemented the EXMED FoS LCSP, collaborating with OPNAV N4L4, BUMED, and PMS 408 for readiness"
+    },
+    {
+      "agency": "DHA",
+      "contract_name": "MHS GENESIS",
+      "outcome": "Managed hundreds of major/minor releases for DHA on MHS GENESIS ensuring high quality"
+    }
+  ],
+  "differentiators": [
+    "Comprehensive, data-driven strategy to address literacy gaps, hardware obsolescence, and disconnected operational challenges",
+    "Rapid-cycle demonstrations at the METC, CANES labs, shipboard/ashore settings, CWIX, and schoolhouses"
+  ],
+  "keywords": [
+    "BUMED PRIME",
+    "N0018925R3039",
+    "Agile Development",
+    "DevSecOps",
+    "Data Fabric",
+    "Data Mesh",
+    "Power BI",
+    "Dynamics 365 Customer Service",
+    "Microservices",
+    "Containerization",
+    "CI/CD Pipelines",
+    "Automated Testing",
+    "EXMED FoS LCSP",
+    "MHS GENESIS",
+    "TYCOMs",
+    "NAVMED",
+    "OPNAV N0931",
+    "DHA J-6",
+    "PEO DHMS"
+  ],
+  "contract_vehicles": [
+    "IDIQ",
+    "GWAC"
+  ],
+  "set_aside_qualifications": [],
+  "source_file": "RPG BUMED PRIME RFQ  N0018925R3039 Step Two Non Cost Volume I pdf.pdf"
+}

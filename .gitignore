@@ -1,0 +1,29 @@
+# Database
+*.db
+*.db-wal
+*.db-shm
+
+# Generated reports
+opportunities_export_*.csv
+opportunities_export_*.xlsx
+opportunity_matches_*.csv
+opportunity_matches_*.xlsx
+
+# Extracted profiles (regenerable from proposals)
+profiles/text_*.txt
+profiles/debug_*.txt
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+.fuse_hidden*
+
+# Config with secrets — use config.yaml.example as template
+config.yaml

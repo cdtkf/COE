@@ -1,0 +1,58 @@
+{
+  "proposal_name": "Taurian Consulting LLC",
+  "service_areas": [
+    "Application Hosting",
+    "Systems Administration Support"
+  ],
+  "domains": [
+    "VA",
+    "Federal Government"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services"
+  ],
+  "technical_competencies": [
+    "Kubernetes/OpenShift",
+    "AWS App2Container",
+    "Checkov or HashiCorp Sentinel",
+    "DynaTrace and Splunk",
+    "GitLab",
+    "CMMI L3 (SVC)",
+    "ITIL's PDCA cycle"
+  ],
+  "past_performance": [
+    {
+      "agency": "VA",
+      "contract_name": "TBM implementation",
+      "outcome": "Maintained system uptime while integrating over 55 unified applications for budget and investment management."
+    },
+    {
+      "agency": "Federal Law Enforcement Agency",
+      "contract_name": "Migrated static mission performance tracking to a dynamic business intelligence (BI) platform",
+      "outcome": "Enabled real-time access to operational data for over 1,000 field leaders"
+    }
+  ],
+  "differentiators": [
+    "Use of Value Stream Mapping as a strategic enabler",
+    "Integration of AI/ML available in DynaTrace and Splunk for deep and smart insight"
+  ],
+  "keywords": [
+    "Taurian Consulting LLC",
+    "VA",
+    "Federal Government",
+    "Application Hosting",
+    "Systems Administration Support",
+    "Kubernetes/OpenShift",
+    "AWS App2Container",
+    "Checkov or HashiCorp Sentinel",
+    "DynaTrace and Splunk",
+    "GitLab",
+    "CMMI L3 (SVC)",
+    "ITIL's PDCA cycle",
+    "Value Stream Mapping",
+    "AI/ML"
+  ],
+  "contract_vehicles": [],
+  "set_aside_qualifications": [],
+  "source_file": "VA IO Franchise Fund RFI (1).pdf"
+}

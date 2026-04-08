@@ -1,0 +1,123 @@
+# =============================================================================
+# SAM.gov Contract Opportunities Puller — Configuration
+# =============================================================================
+
+# Your SAM.gov API key (get one free at https://api.sam.gov)
+api_key: "YOUR-SAM-GOV-API-KEY"
+
+# -----------------------------------------------------------------------------
+# Global Settings
+# -----------------------------------------------------------------------------
+settings:
+  # How many days back to look on the very first run (before we have history)
+  initial_lookback_days: 7
+
+  # Max total opportunities to pull from API per run
+  # (we pull all recent opps then filter client-side by office code)
+  max_api_results: 10000
+
+  # Seconds to wait between API calls (respect rate limits)
+  request_delay: 1.0
+
+  # Database file path (relative to this config file)
+  database: "opportunities.db"
+
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  log_level: "INFO"
+
+# -----------------------------------------------------------------------------
+# Tracked Offices
+# -----------------------------------------------------------------------------
+# Each entry is a government office you monitor for new contract opportunities.
+# Just add the office code and a friendly name so logs are readable.
+#
+# To find office codes: search on SAM.gov, the office code appears in the
+# opportunity details (e.g., "36C10B" = VA Technology Acquisition Center NJ)
+# -----------------------------------------------------------------------------
+
+offices:
+  - code: "36C10B"
+    name: "VA Technology Acquisition Center NJ"
+
+  - code: "36C10G"
+    name: "VA Strategic Acquisition Center Fredericksburg"
+
+  - code: "36C10X"
+    name: "VA Strategic Acquisition Center Frederick"
+
+  - code: "HT0011"
+    name: "DHA"
+
+  - code: "W81K04"
+    name: "Army Health Contracting Activity"
+
+  - code: "FA8052"
+    name: "Air Force Medical Service"
+
+  - code: "FA7014"
+    name: "Air Force Medical Service Base Specific"
+
+  - code: "W912DY"
+    name: "US Army USACE"
+
+  - code: "SP4701"
+    name: "Defense Logistics Agency"
+
+  - code: "SP4703"
+    name: "Defense Logistics Agency 2"
+
+  - code: "W912LQ"
+    name: "National Guard Bureau Virginia"
+
+  - code: "W912JA"
+    name: "National Guard Bureau Alabama"
+
+  - code: "FA4484"
+    name: "Air National Guard HQ"
+
+  - code: "36C776"
+    name: "PCAC"
+
+  - code: "W6QK ACC-APG"
+    name: "Army Contracting Command"
+
+  - code: "36C10D"
+    name: "Veterans Benefit Administration VBA"
+
+  - code: "36C10A"
+    name: "VA TAC Austin"
+  # -------------------------------------------------------------------------
+  # Add more offices below
+  # -------------------------------------------------------------------------
+  # - code: "XXXYYY"
+  #   name: "Office Name Here"
+
+# =============================================================================
+# Phase 2: AI-Powered Capability Matching
+# =============================================================================
+matching:
+  # --- LLM Configuration ---
+  # Ollama (local, free) — used for profile extraction
+  # Install from https://ollama.com then: ollama pull llama3.1
+  ollama_model: "llama3.1"
+
+  # Anthropic API key — for daily scoring
+  anthropic_api_key: "YOUR-ANTHROPIC-API-KEY"
+  scoring_model: "claude-sonnet-4-5-20250929"
+
+  # API settings
+  max_tokens: 1024
+  temperature: 0.0
+  batch_size: 50
+  request_delay: 0.5        # Seconds between API calls
+
+  # Scoring
+  min_score_for_report: 30  # Minimum score to include in output reports
+
+  # Paths (relative to this config file)
+  proposals_dir: "../../Proposals"
+  profiles_path: "profiles/capability_profiles.json"
+
+  # Company info for scoring
+  set_aside_qualifications:
+    - "SDVOSB"

@@ -1,0 +1,68 @@
+{
+  "proposal_name": "BUMED Platform for Readiness and Informatics in Military Environments",
+  "service_areas": [
+    "Health Informatics",
+    "Digital Transformation",
+    "Data Analytics",
+    "Operational Medicine Solutions"
+  ],
+  "domains": [
+    "Department of Navy",
+    "Bureau of Medicine and Surgery (BUMED)",
+    "Military Health System",
+    "Defense Health Agency (DHA)"
+  ],
+  "naics_codes": [
+    {
+      "code": "541512",
+      "description": "Computer Systems Design Services"
+    },
+    {
+      "code": "541513",
+      "description": "Software Development and Design Services"
+    }
+  ],
+  "technical_competencies": [
+    "Agile development",
+    "CI/CD pipelines",
+    "Atlassian Jira",
+    "Cybersecurity assessments",
+    "Integration reviews",
+    "Scenario-based simulations",
+    "Automated deployments",
+    "Incident management",
+    "System health monitoring"
+  ],
+  "past_performance": [],
+  "differentiators": [
+    "Unique insights into functional gaps, user needs, and transition planning required to successfully coordinate across the JOMIS application lifecycle",
+    "Proven track record in Navy Medicine and support of existing transformation and modernization efforts"
+  ],
+  "keywords": [
+    "BUMED",
+    "PRIME",
+    "JOMIS",
+    "NEHSS",
+    "Operational Forces",
+    "Health Informatics",
+    "Digital Transformation",
+    "Data Analytics",
+    "Operational Medicine Solutions",
+    "Agile development",
+    "CI/CD pipelines",
+    "Atlassian Jira",
+    "Cybersecurity assessments",
+    "Integration reviews",
+    "Scenario-based simulations",
+    "Automated deployments",
+    "Incident management",
+    "System health monitoring"
+  ],
+  "contract_vehicles": [
+    "SeaPort Contract Number: N0017819D8405"
+  ],
+  "set_aside_qualifications": [
+    "Service-Disabled Veteran-Owned Small Business (SDVOSB)"
+  ],
+  "source_file": "RPG BUMED PRIME Step One Response.pdf"
+}

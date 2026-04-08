@@ -1,0 +1,57 @@
+{
+  "proposal_name": "RPG: A Trusted VA Data Partner",
+  "service_areas": [
+    "Data Governance",
+    "Fraud Prevention Services"
+  ],
+  "domains": [
+    "VA",
+    "VHA",
+    "NCA",
+    "DoD"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services"
+  ],
+  "technical_competencies": [
+    "ML models",
+    "Dynamic visualizations",
+    "Dashboards",
+    "Statistical models",
+    "Data stewardship",
+    "Subject-matter expertise"
+  ],
+  "past_performance": [
+    {
+      "agency": "VA",
+      "contract_name": "PACT Act DMF LOE",
+      "outcome": "Established trust and credibility for RPG in the VA Data Community, offering BDP&R an avenue to knock down data siloes through collaboration."
+    },
+    {
+      "agency": "VA",
+      "contract_name": "CVAD IPT",
+      "outcome": "Developed business rules for a trusted, authoritative, Veteran-centric dataset for core Veteran data elements to support enterprise analytics, research, and operational decision support."
+    }
+  ],
+  "differentiators": [
+    "Unparalleled experience establishing and running VA Working Groups and Integrated Project Teams (IPTs)",
+    "Establishing trust and credibility in the VA Data Community"
+  ],
+  "keywords": [
+    "VA",
+    "VHA",
+    "NCA",
+    "DoD",
+    "Data Governance",
+    "Fraud Prevention Services",
+    "ML models",
+    "Dynamic visualizations",
+    "Dashboards",
+    "Statistical models",
+    "PACT Act DMF LOE",
+    "CVAD IPT"
+  ],
+  "contract_vehicles": [],
+  "set_aside_qualifications": [],
+  "source_file": "RFI Response VBA Fraud Prevention Services (1) (1).pdf"
+}

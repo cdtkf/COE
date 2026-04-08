@@ -1,0 +1,75 @@
+{
+  "proposal_name": "RPG Proposal for IT Services",
+  "service_areas": [
+    "Application Service / Software Development",
+    "Cybersecurity Services",
+    "Data Governance and Management",
+    "IT Consulting and Advisory Services"
+  ],
+  "domains": [
+    "VA",
+    "DHA",
+    "DoD Health",
+    "Navy",
+    "BUMED"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services",
+    "541513 - Software Development and Implementation Services"
+  ],
+  "technical_competencies": [
+    "Agile project management",
+    "PowerBI",
+    "Palantir",
+    "Tableau",
+    "Esri ArcGIS",
+    "Jira",
+    "Azure",
+    "CI/CD",
+    "HCD",
+    "Continuous Integration and Continuous Deployment"
+  ],
+  "past_performance": [
+    {
+      "agency": "VA OEI",
+      "contract_name": "Development of dynamic visualizations for initiatives across the enterprise",
+      "outcome": "Provided information on initiatives across the enterprise using dynamic visualizations"
+    },
+    {
+      "agency": "DHA",
+      "contract_name": "Support for DHA Enterprise Desktop and Identity, Credential, and Access Management (ICAM) efforts",
+      "outcome": "Supported DHA ICAM efforts related to DoDs Risk Management Framework"
+    }
+  ],
+  "differentiators": [
+    "Agile thinking and analytic rigor",
+    "Conversation at all levels with stakeholders",
+    "Training for personnel to ensure proper operation, maintenance, and testing of systems, applications, and products"
+  ],
+  "keywords": [
+    "IT services",
+    "Application development",
+    "Cybersecurity",
+    "Data governance",
+    "Agile project management",
+    "PowerBI",
+    "Palantir",
+    "Tableau",
+    "Esri ArcGIS",
+    "Jira",
+    "Azure",
+    "CI/CD",
+    "HCD",
+    "Continuous Integration and Continuous Deployment",
+    "VA",
+    "DHA",
+    "DoD Health",
+    "Navy",
+    "BUMED"
+  ],
+  "contract_vehicles": [
+    "NASA SEWP VI"
+  ],
+  "set_aside_qualifications": [],
+  "source_file": "ReefPoint Group_Category B_Technical Approach.pdf"
+}

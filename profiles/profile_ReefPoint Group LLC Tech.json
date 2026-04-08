@@ -1,0 +1,70 @@
+{
+  "proposal_name": "PACT Data Governance and Analytics",
+  "service_areas": [
+    "Data Governance",
+    "Data Analytics",
+    "Data Engineering"
+  ],
+  "domains": [
+    "VA",
+    "DGA (Office of Data Governance and Analytics)"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services"
+  ],
+  "technical_competencies": [
+    "IDEA (Integrated Data Engineering and Analytics)",
+    "API (Application Programming Interface)",
+    "ETL (Extract-Transform-Load)",
+    "SQL (Structured Query Language)",
+    "PMBOK (Project Management Body of Knowledge)"
+  ],
+  "past_performance": [
+    {
+      "agency": "VA",
+      "contract_name": "PACT Data Governance and Analytics",
+      "outcome": "Delivered timely, trusted data objects, analytics products, and data management to DGA."
+    }
+  ],
+  "differentiators": [
+    "Rapid orientation of team and development of custom solutions tailored to maximize value and stability.",
+    "Proactive stance and readiness to deliver immediate value."
+  ],
+  "keywords": [
+    "PACT",
+    "VA",
+    "DGA",
+    "IDEA",
+    "API",
+    "ETL",
+    "SQL",
+    "PMBOK",
+    "ADS (Authoritative Data Sources)",
+    "AMAS (Automated Monument System)",
+    "BOSS (Burial Operations Support System)",
+    "CDW (Corporate Data Warehouse)",
+    "CxDW (Customer Experience Data Warehouse)",
+    "DGC (Data Governance Council)",
+    "DMF (Data Modeling and Forecasting)",
+    "DSCoP (Data Science Community of Practice)",
+    "EDC (Enterprise Data Catalog)",
+    "ILER (Individual Longitudinal Exposure Record)",
+    "ITRP (Information Technology Request Portal)",
+    "KAQ(s) (Key Analytical Question(s))",
+    "LOE (Lane of Effort)",
+    "MCAO (Management Cost Accounting Office)",
+    "MPI (Master Person Index)",
+    "OEI (Office of Enterprise Integration)",
+    "OIT (Office of Information Technology)",
+    "VADIR (VA/Department of Defense Identity Repository)",
+    "VASRD (Veterans Affairs Schedule for Rating Disabilities)",
+    "VBA (Veterans Benefits Administration)",
+    "VHA (Veterans Health Administration)",
+    "VSSC (VHA Support Service Center Capital Assets)"
+  ],
+  "contract_vehicles": [
+    "IDIQ"
+  ],
+  "set_aside_qualifications": [],
+  "source_file": "ReefPoint Group LLC Tech.pdf"
+}

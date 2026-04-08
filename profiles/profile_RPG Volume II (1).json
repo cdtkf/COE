@@ -1,0 +1,67 @@
+{
+  "proposal_name": "DHA Enterprise IT Services Integrator (EITSI)",
+  "service_areas": [
+    "Enterprise IT Services",
+    "Cybersecurity",
+    "Endpoint Management",
+    "Identity Engineering",
+    "Configuration/Change Enablement"
+  ],
+  "domains": [
+    "DoD Health",
+    "VA"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services",
+    "517919 - Other Telecommunications",
+    "511210 - Software Publishers"
+  ],
+  "technical_competencies": [
+    "RMF compliance and ZT goals",
+    "Risk assessments, vulnerability management, and continuous monitoring",
+    "Continuous deployment and Agile workflows",
+    "MECM, Intune, and GPOs",
+    "NIST 800-53 rev5",
+    "ICAM standards"
+  ],
+  "past_performance": [
+    {
+      "agency": "DHA",
+      "contract_name": "EITSI contract",
+      "outcome": "Delivered seamless partner onboarding and operational continuity through unified ZT implementation, strategic alignment, and agile support."
+    },
+    {
+      "agency": "Navy Bureau of Medicine and Surgery (BUMED)",
+      "contract_name": "LIMDU SMART contract",
+      "outcome": "Managed 150-300 Limited Duty (LIMDU) SMART support tickets monthly, triaging by tier"
+    }
+  ],
+  "differentiators": [
+    "Certified personnel, transparent governance, and advanced reporting ensure operational excellence and 24/7 mission readiness.",
+    "Supports RMF compliance and ZT goals through risk assessments, vulnerability management, and continuous monitoring across key systems like DHAMPK-DaaS, and MED365."
+  ],
+  "keywords": [
+    "DHA",
+    "VA",
+    "DoD Health",
+    "EITSI",
+    "RMF",
+    "ZT",
+    "ICAM",
+    "NIST 800-53 rev5",
+    "MECM",
+    "Intune",
+    "GPOs",
+    "Agile",
+    "Continuous deployment",
+    "Cybersecurity",
+    "Endpoint Management",
+    "Identity Engineering",
+    "Configuration/Change Enablement"
+  ],
+  "contract_vehicles": [
+    "IDIQ"
+  ],
+  "set_aside_qualifications": [],
+  "source_file": "RPG Volume II (1).pdf"
+}

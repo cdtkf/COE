@@ -1,0 +1,51 @@
+{
+  "proposal_name": "DHA VAULTIS Data Governance",
+  "service_areas": [
+    "Data Governance",
+    "Metadata Management"
+  ],
+  "domains": [
+    "VA",
+    "DHA",
+    "DoD Health",
+    "Army"
+  ],
+  "naics_codes": [
+    "541512 - Computer Systems Design Services"
+  ],
+  "technical_competencies": [
+    "SharePoint",
+    "PowerApps",
+    "Power Automate",
+    "APIs",
+    "ETL",
+    "Transport Layer Security (TLS)",
+    "Platform-native encryption at rest"
+  ],
+  "past_performance": [],
+  "differentiators": [
+    "Catalog-ready export capabilities",
+    "Standardized data source with ownership and classification"
+  ],
+  "keywords": [
+    "VAULTIS",
+    "Data Governance",
+    "Metadata Management",
+    "SharePoint",
+    "PowerApps",
+    "Power Automate",
+    "APIs",
+    "ETL",
+    "Transport Layer Security (TLS)",
+    "Platform-native encryption at rest",
+    "CAC/PIV + MFA",
+    "RBAC/Attribute-Based Access Control (ABAC)",
+    "DoW IL4/IL5 standards",
+    "HIPAA",
+    "NIST SP 800-53",
+    "DHA security mandates"
+  ],
+  "contract_vehicles": [],
+  "set_aside_qualifications": [],
+  "source_file": "BAFO_FINAL_DHA_VAULTIS_Data_Governance_Volume_I_Technical.pdf"
+}
