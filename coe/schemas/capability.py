@@ -37,12 +37,12 @@ class ServiceAreaRead(ServiceAreaCreate):
     updated_at: datetime
 
 # --- Technical Compentencies ---
-class TechnicalCompentencyCreate(BaseModel):
+class TechnicalCompetencyCreate(BaseModel):
     name: str = Field(..., max_length=300)
     description: Optional[str] = None
     category: Optional[str] = Field(None, max_length=100)
 
-class TechnicalCompentencyRead(TechnicalCompentencyCreate):
+class TechnicalCompetencyRead(TechnicalCompetencyCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: int 
