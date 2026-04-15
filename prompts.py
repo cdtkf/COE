@@ -151,7 +151,7 @@ Scoring rules:
 
 Return a JSON object with EXACTLY these fields:
 
-{{{{
+{{
   "work_summary": "1 sentence describing what work is actually being asked for in this opportunity",
   "overall_score": <0-100 integer — weighted composite: capability 50% + naics 25% + domain 15% + set_aside 10%>,
   "domain_score": <0-100 integer>,
@@ -159,4 +159,9 @@ Return a JSON object with EXACTLY these fields:
   "naics_score": <0-100 integer>,
   "set_aside_fit": <0-100 integer>,
   "rationale": "2-3 sentence explanation focused on the actual work being asked for and whether the company can do it",
-  "matched_capabilities_used": ["Names of specific capability records from the matched list that are"""
+  "matched_capabilities_used": ["Names of specific capability records from the matched list that are genuinely relevant — empty array if none"],
+  "key_alignment_factors": ["Specific, SOW-grounded reasons this is a match — no generic capability lists"],
+  "risk_factors": ["Specific gaps or mismatches — be direct if it's a wrong-industry opportunity"]
+}}
+
+Return ONLY the JSON object, no markdown formatting or explanation."""
