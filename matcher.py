@@ -26,7 +26,8 @@ import requests
 import yaml
 
 from db import Database
-from prompts import SCORING_SYSTEM, SCORING_USER
+from prompts import SCORING_SYSTEM, SCORING_USER, SCORING_USER_V2
+from retrieval import retrieve, RetrievedRecord
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -155,16 +156,31 @@ def extract_description_from_raw(raw_json_str: str) -> str:
     return full_desc
 
 
-def score_opportunity_via_ollama(opp: dict, profile_summary: str, model: str) -> dict:
-    """Score a single opportunity against the capability profile using Ollama."""
+def score_opportunity_via_ollama(opp: dict, model: str) -> dict | None:
+    """Score a single opportunity using retrieval-augmented context."""
 
-    # Build opportunity details
+    # Build opportunity description for retrieval + prompt
     raw_json = opp.get("raw_json", "{}")
     description = extract_description_from_raw(raw_json)
+    title = opp.get("title", "N/A")
 
-    prompt = SCORING_USER.format(
-        capability_profile=profile_summary,
-        opp_title=opp.get("title", "N/A"),
+    # Build a query combining title + description for retrieval
+    retrieval_query = f"{title} {description}"[:2000]
+
+    # Run retrieval to find relevant capability records
+    try:
+        retrieved = retrieve(retrieval_query, use_reranker=True)
+    except Exception as e:
+        log.warning(f"Retrieval failed: {e}")
+        retrieved = []
+
+    # Format retrieved records into prompt context
+    retrieved_context = build_retrieved_context(retrieved)
+
+    # Build the scoring prompt using V2 template
+    prompt = SCORING_USER_V2.format(
+        retrieved_context=retrieved_context,
+        opp_title=title,
         opp_sol_number=opp.get("solicitation_number", "N/A"),
         opp_notice_type=opp.get("base_type", opp.get("notice_type", "N/A")),
         opp_naics=opp.get("naics_code", "N/A"),
@@ -209,13 +225,11 @@ def score_opportunity_via_ollama(opp: dict, profile_summary: str, model: str) ->
         return None
 
     # Parse JSON from response
-    # Strip markdown code fences if present
     if "```" in response_text:
         match = re.search(r'```(?:json)?\s*\n?(.*?)```', response_text, re.DOTALL)
         if match:
             response_text = match.group(1).strip()
 
-    # Find JSON object
     json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
     if json_match:
         response_text = json_match.group(0)
@@ -223,7 +237,7 @@ def score_opportunity_via_ollama(opp: dict, profile_summary: str, model: str) ->
     try:
         score_data = json.loads(response_text)
     except json.JSONDecodeError:
-        log.warning(f"Failed to parse score JSON for: {opp.get('title', '?')[:50]}")
+        log.warning(f"Failed to parse score JSON for: {title[:50]}")
         return None
 
     # Validate and clamp scores to 0-100
@@ -238,9 +252,6 @@ def score_opportunity_via_ollama(opp: dict, profile_summary: str, model: str) ->
     naics_score = clamp(score_data.get("naics_score", 0))
     set_aside_fit = clamp(score_data.get("set_aside_fit", 0))
 
-    # Hard-enforce weighting: capability 50%, naics 25%, domain 15%, set_aside 10%
-    # This prevents a high domain score from inflating irrelevant opportunities.
-    # We recompute overall rather than trusting the model's arithmetic.
     computed_overall = int(
         (capability_score * 0.50) +
         (naics_score * 0.25) +
@@ -248,7 +259,6 @@ def score_opportunity_via_ollama(opp: dict, profile_summary: str, model: str) ->
         (set_aside_fit * 0.10)
     )
 
-    # Additional hard cap: if capability is very low (wrong industry), overall cannot exceed 35
     if capability_score <= 20:
         computed_overall = min(computed_overall, 35)
 
@@ -261,13 +271,120 @@ def score_opportunity_via_ollama(opp: dict, profile_summary: str, model: str) ->
         "set_aside_fit": set_aside_fit,
         "work_summary": score_data.get("work_summary", ""),
         "rationale": score_data.get("rationale", ""),
-        "matched_profiles": score_data.get("matched_profiles", []),
+        "matched_capabilities_used": score_data.get("matched_capabilities_used", []),
         "key_alignment_factors": score_data.get("key_alignment_factors", []),
         "risk_factors": score_data.get("risk_factors", []),
         "model_used": model,
         "scored_at": datetime.now().isoformat(),
         "raw_response": result.get("response", ""),
+        "retrieved_records": retrieved,  # pass through for audit trail in Commit 4
     }
+
+def build_retrieved_context(records: list) -> str:
+    """Format retrieval results into a structured prompt section.
+    
+    Groups records by type (competencies, past performance, service areas)
+    and includes relevance scores so the LLM can gauge match confidence.
+    """
+    competencies = [r for r in records if r.record_type == "competency"]
+    past_perfs = [r for r in records if r.record_type == "past_performance"]
+    service_areas = [r for r in records if r.record_type == "service_area"]
+
+    parts = []
+
+    if competencies:
+        parts.append("MATCHED TECHNICAL COMPETENCIES:")
+        for r in competencies:
+            # Prefer rerank score (most accurate), fall back to rrf
+            if r.rerank_score is not None:
+                score_info = f"(relevance: {r.rerank_score:.2f})"
+            elif r.rrf_score:
+                score_info = f"(rrf: {r.rrf_score:.4f})"
+            else:
+                score_info = ""
+            parts.append(f"  - {r.name} {score_info}")
+            if r.description:
+                parts.append(f"    {r.description[:300]}")
+
+    if past_perfs:
+        parts.append("\nMATCHED PAST PERFORMANCE:")
+        for r in past_perfs:
+            agency = r.metadata.get("agency", "")
+            if r.rerank_score is not None:
+                score_info = f"(relevance: {r.rerank_score:.2f})"
+            elif r.rrf_score:
+                score_info = f"(rrf: {r.rrf_score:.4f})"
+            else:
+                score_info = ""
+            agency_str = f" [{agency}]" if agency else ""
+            parts.append(f"  - {r.name}{agency_str} {score_info}")
+            if r.description:
+                parts.append(f"    {r.description[:300]}")
+
+    if service_areas:
+        parts.append("\nMATCHED SERVICE AREAS:")
+        parts.append(f"  {', '.join(r.name for r in service_areas)}")
+
+    if not parts:
+        return "No matching capabilities found in the company's corpus."
+
+    return "\n".join(parts)
+
+def save_scoring_run(score: dict, opp: dict) -> None:
+    """Save a scoring run and its retrieved records to Postgres for audit trail."""
+    from coe.database import get_session
+    from coe.models import ScoringRun, ScoringRetrievedRecord
+
+    pg_session = get_session()
+    try:
+        run = ScoringRun(
+            opportunity_notice_id=opp.get("solicitation_number", opp.get("notice_id", str(opp["id"]))),
+            opportunity_title=opp.get("title", "")[:1000],
+            overall_score=score["overall_score"],
+            capability_score=score["capability_score"],
+            naics_score=score["naics_score"],
+            domain_score=score["domain_score"],
+            set_aside_score=score["set_aside_fit"],
+            work_summary=score.get("work_summary"),
+            rationale=score.get("rationale"),
+            risk_factors=json.dumps(score.get("risk_factors", [])),
+            model_used=score["model_used"],
+            scoring_duration_ms=score.get("scoring_duration_ms"),
+        )
+
+        # Link each retrieved record to this scoring run
+        for rec in score.get("retrieved_records", []):
+            # Determine how this record was retrieved
+            if rec.rerank_score is not None:
+                method = "rerank"
+                sim_score = rec.rerank_score
+            elif rec.vector_score is not None:
+                method = "vector"
+                sim_score = rec.vector_score
+            elif rec.bm25_score is not None:
+                method = "bm25"
+                sim_score = rec.bm25_score
+            else:
+                method = "keyword"
+                sim_score = None
+
+            run.retrieved_records.append(ScoringRetrievedRecord(
+                record_type=rec.record_type,
+                record_id=rec.record_id,
+                record_name=rec.name[:500],
+                retrieval_method=method,
+                similarity_score=sim_score,
+                rank=rec.final_rank,
+            ))
+
+        pg_session.add(run)
+        pg_session.commit()
+        log.info(f"  Saved scoring run to Postgres ({len(run.retrieved_records)} retrieved records)")
+    except Exception as e:
+        pg_session.rollback()
+        log.warning(f"  Failed to save scoring run to Postgres: {e}")
+    finally:
+        pg_session.close()
 
 
 def main():
@@ -296,10 +413,7 @@ def main():
             log.error("Ollama is not running! Start with: ollama serve")
             sys.exit(1)
 
-    # Load profile and database
-    profile = load_capability_profile(config)
-    profile_summary = build_profile_summary(profile)
-
+    # Load database (retrieval handles capability context per-opportunity now)
     db_path = matching_cfg.get("database", config.get("settings", {}).get("database", "opportunities.db"))
     if not Path(db_path).is_absolute():
         db_path = str(SCRIPT_DIR / db_path)
@@ -345,11 +459,12 @@ def main():
         title_short = (opp["title"] or "Untitled")[:60]
         log.info(f"\n[{i+1}/{len(opps)}] Scoring: {title_short}...")
 
-        score = score_opportunity_via_ollama(dict(opp), profile_summary, model)
+        score = score_opportunity_via_ollama(dict(opp), model)
 
         if score:
             db.insert_match_score(score)
             db.commit()
+            save_scoring_run(score, dict(opp))
             scored += 1
             total_score += score["overall_score"]
 
@@ -379,6 +494,7 @@ def main():
              f"{stats['medium_matches_40_69']} medium matches")
 
     db.close()
+
 
 
 if __name__ == "__main__":
