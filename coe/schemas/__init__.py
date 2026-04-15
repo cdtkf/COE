@@ -1,7 +1,7 @@
 from coe.schemas.capability import (
     ProposalCreate, ProposalRead, 
     ServiceAreaCreate, ServiceAreaRead, 
-    TechnicalCompetencyCreate, TechnicalCompetecyRead, 
+    TechnicalCompetencyCreate, TechnicalCompetencyRead, 
     PastPerformanceCreate, PastPerformanceRead, 
     DomainExperienceCreate, DomainExperienceRead,
 )
