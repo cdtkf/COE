@@ -116,3 +116,47 @@ Return a JSON object with EXACTLY these fields:
 }}
 
 Return ONLY the JSON object, no markdown formatting or explanation."""
+
+# =============================================================================
+# V2 Scoring Prompt — uses retrieval results instead of full profile
+# =============================================================================
+SCORING_USER_V2 = """Score this SAM.gov opportunity against the company's matched capabilities. Be strict and skeptical.
+
+FIRST, ask yourself: "What work is actually being asked for in this opportunity?" Answer that before scoring anything.
+
+The capabilities below were selected by a retrieval system as the most relevant matches from the company's full capability corpus. Each record includes a relevance score (0-1). If the top matches have low relevance scores or seem tangential to the opportunity, that is a strong signal this is NOT a good fit — score accordingly.
+
+<matched_capabilities>
+{retrieved_context}
+</matched_capabilities>
+
+<opportunity>
+Title: {opp_title}
+Solicitation Number: {opp_sol_number}
+Notice Type: {opp_notice_type}
+NAICS Code: {opp_naics}
+Set-Aside: {opp_set_aside}
+Office: {opp_office}
+Agency: {opp_agency}
+Description: {opp_description}
+Response Deadline: {opp_deadline}
+</opportunity>
+
+Scoring rules:
+- If the NAICS code is in construction (236xxx), facilities (237xxx, 238xxx), equipment rental (532xxx), medical/dental staffing (621xxx), food service (722xxx), hotels (721xxx), telecom hardware (517xxx), or any other non-IT sector: capability_score MUST be 20 or below, domain_score MUST be 40 or below.
+- Do NOT list generic technical competencies (Agile, CI/CD, ETL, SQL) as alignment factors unless the SOW explicitly asks for those things.
+- Only cite a matched capability or past performance as alignment if it is genuinely similar to the work being asked for — not just because retrieval surfaced it.
+- If the opportunity description is vague or missing, score conservatively (lean toward 30-50 range, not 70+).
+- If no matched capabilities are relevant to the actual work, capability_score should be below 30.
+
+Return a JSON object with EXACTLY these fields:
+
+{{{{
+  "work_summary": "1 sentence describing what work is actually being asked for in this opportunity",
+  "overall_score": <0-100 integer — weighted composite: capability 50% + naics 25% + domain 15% + set_aside 10%>,
+  "domain_score": <0-100 integer>,
+  "capability_score": <0-100 integer>,
+  "naics_score": <0-100 integer>,
+  "set_aside_fit": <0-100 integer>,
+  "rationale": "2-3 sentence explanation focused on the actual work being asked for and whether the company can do it",
+  "matched_capabilities_used": ["Names of specific capability records from the matched list that are"""
