@@ -36,25 +36,49 @@ def main():
             by_type.setdefault(r.record_type, []).append(r)
 
         # --- 1. Proposals ---
+        # Idempotent: if a proposal with the same source_file already exists in
+        # the DB (from a prior run), reuse it instead of trying to insert a
+        # duplicate. We key on source_file because that's the unique constraint
+        # in the proposals table.
+        #
+        # We also seed proposal_map from the DB up front, so that child records
+        # (service areas, competencies, past performances) from THIS run can
+        # still find their parent proposal even if the parent's proposed_record
+        # was already marked "approved" on a prior run and is no longer pending.
         proposal_map = {}  # proposal_name -> Proposal object
+        for p in session.query(Proposal).all():
+            proposal_map[p.name] = p
+
+        created = 0
+        reused = 0
         for rec in by_type.get("proposal", []):
             data = json.loads(rec.payload)
-            proposal = Proposal(
-                name=data["name"],
-                source_file=data["source_file"],
-                agency=data.get("agency"),
-                naics_codes=json.dumps(data.get("naics_codes", [])),
-                set_aside_qualifications=json.dumps(data.get("set_aside_qualifications", [])),
-            )
-            session.add(proposal)
-            session.flush()  # Get the ID assigned
+            existing = session.query(Proposal).filter_by(source_file=data["source_file"]).first()
+            if existing:
+                proposal = existing
+                reused += 1
+            else:
+                proposal = Proposal(
+                    name=data["name"],
+                    source_file=data["source_file"],
+                    agency=data.get("agency"),
+                    naics_codes=json.dumps(data.get("naics_codes", [])),
+                    set_aside_qualifications=json.dumps(data.get("set_aside_qualifications", [])),
+                )
+                session.add(proposal)
+                session.flush()  # Get the ID assigned
+                created += 1
+
             proposal_map[data["name"]] = proposal
 
             rec.status = "approved"
             rec.promoted_id = proposal.id
             rec.promoted_table = "proposals"
             rec.reviewed_at = datetime.now(timezone.utc)
-            print(f"  Proposal: {data['name']} -> id={proposal.id}")
+            tag = "reused" if existing else "created"
+            print(f"  Proposal ({tag}): {data['name']} -> id={proposal.id}")
+
+        print(f"  Proposals: {created} created, {reused} reused")
 
         # --- 2. Service Areas (deduplicated) ---
         sa_map = {}  # name -> ServiceArea object
@@ -120,7 +144,10 @@ def main():
         print(f"  Competencies: {len(comp_map)} unique")
 
         # --- 4. Past Performances ---
-        pp_count = 0
+        # Idempotent: dedupe on (proposal_id, project_name). Without this,
+        # re-running creates duplicate past-performance rows each time.
+        pp_created = 0
+        pp_reused = 0
         for rec in by_type.get("past_performance", []):
             data = json.loads(rec.payload)
             proposal_name = data.get("proposal_name")
@@ -129,25 +156,36 @@ def main():
                 print(f"  WARNING: No proposal found for past performance: {proposal_name}")
                 continue
 
-            pp = PastPerformance(
+            project_name = data.get("project_name", "Unknown")
+            existing = session.query(PastPerformance).filter_by(
                 proposal_id=proposal.id,
-                project_name=data.get("project_name", "Unknown"),
-                agency=data.get("agency"),
-                description=data.get("description"),
-            )
-            session.add(pp)
-            session.flush()
+                project_name=project_name,
+            ).first()
+            if existing:
+                pp = existing
+                pp_reused += 1
+            else:
+                pp = PastPerformance(
+                    proposal_id=proposal.id,
+                    project_name=project_name,
+                    agency=data.get("agency"),
+                    description=data.get("description"),
+                )
+                session.add(pp)
+                session.flush()
+                pp_created += 1
 
             rec.status = "approved"
             rec.promoted_id = pp.id
             rec.promoted_table = "past_performances"
             rec.reviewed_at = datetime.now(timezone.utc)
-            pp_count += 1
 
-        print(f"  Past performances: {pp_count}")
+        print(f"  Past performances: {pp_created} created, {pp_reused} reused")
 
         # --- 5. Domain Experiences ---
-        de_count = 0
+        # Idempotent: dedupe on (proposal_id, domain).
+        de_created = 0
+        de_reused = 0
         for rec in by_type.get("domain_experience", []):
             data = json.loads(rec.payload)
             proposal_name = data.get("proposal_name")
@@ -156,21 +194,30 @@ def main():
                 print(f"  WARNING: No proposal found for domain experience: {proposal_name}")
                 continue
 
-            de = DomainExperience(
+            domain = data.get("domain", "Unknown")
+            existing = session.query(DomainExperience).filter_by(
                 proposal_id=proposal.id,
-                domain=data.get("domain", "Unknown"),
-                depth=data.get("depth", "moderate"),
-            )
-            session.add(de)
-            session.flush()
+                domain=domain,
+            ).first()
+            if existing:
+                de = existing
+                de_reused += 1
+            else:
+                de = DomainExperience(
+                    proposal_id=proposal.id,
+                    domain=domain,
+                    depth=data.get("depth", "moderate"),
+                )
+                session.add(de)
+                session.flush()
+                de_created += 1
 
             rec.status = "approved"
             rec.promoted_id = de.id
             rec.promoted_table = "domain_experiences"
             rec.reviewed_at = datetime.now(timezone.utc)
-            de_count += 1
 
-        print(f"  Domain experiences: {de_count}")
+        print(f"  Domain experiences: {de_created} created, {de_reused} reused")
 
         session.commit()
         print(f"\nDone! All records promoted.")
