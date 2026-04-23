@@ -25,9 +25,9 @@ from pathlib import Path
 import requests
 import yaml
 
-from db import Database
-from prompts import SCORING_SYSTEM, SCORING_USER, SCORING_USER_V2
-from retrieval import retrieve, RetrievedRecord
+from coe.puller.sqlite_db import Database
+from coe.scoring.prompts import SCORING_SYSTEM, SCORING_USER, SCORING_USER_V2
+from coe.scoring.retrieval import retrieve, RetrievedRecord
 
 # ---------------------------------------------------------------------------
 # Configuration

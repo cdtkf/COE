@@ -30,10 +30,10 @@ from pathlib import Path
 
 import requests
 
-from db import Database
-from prompts import SCORING_SYSTEM, SCORING_USER, SCORING_USER_V2
-from retrieval import retrieve
-from matcher import (
+from coe.puller.sqlite_db import Database
+from coe.scoring.prompts import SCORING_SYSTEM, SCORING_USER, SCORING_USER_V2
+from coe.scoring.retrieval import retrieve
+from coe.scoring.matcher import (
     CONFIG_PATH,
     OLLAMA_BASE_URL,
     DEFAULT_MODEL,
