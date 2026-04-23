@@ -35,3 +35,22 @@ with col4:
     else:
         latest_display = latest.strftime("%b %d, %I:%M %p")
     st.metric(label="Last pull", value=latest_display)
+
+# --- Opportunity browser -----------------------------------------------------------
+st.divider()
+st.header("Opportunities")
+
+opps_df = queries.get_all_opportunities()
+st.caption(f"{len(opps_df):,} rows - sort, search, or resize columns as needed.")
+
+st.dataframe(
+    opps_df,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "description_url": st.column_config.LinkColumn(
+            "SAM.gov link", 
+            display_text="Open", 
+        ), 
+    },
+)

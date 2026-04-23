@@ -70,3 +70,16 @@ def get_latest_pull_timestamp() -> Optional[datetime]:
     if value is None or pd.isna(value):
         return None
     return datetime.fromisoformat(value)
+
+def get_all_opportunities() -> pd.DataFrame:
+    """
+    Every opportunity row with every column, newest first by posted_date.
+
+    Note: this could be a very large dataframe. Use with caution.
+    """
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            "SELECT * FROM opportunities ORDER BY posted_date DESC",
+            conn,
+        )
+    return df
