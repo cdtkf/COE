@@ -29,7 +29,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 
-DB_PATH = Path(__file__).parent / "opportunities.db"
+# Repo root is two levels up from coe/reporting/query.py
+DB_PATH = Path(__file__).resolve().parents[2] / "data" / "opportunities.db"
 
 
 def get_connection():

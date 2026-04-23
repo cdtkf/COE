@@ -25,7 +25,7 @@ from pathlib import Path
 
 import yaml
 
-from db import Database
+from coe.puller.sqlite_db import Database
 
 # ---------------------------------------------------------------------------
 # Configuration
