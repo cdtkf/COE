@@ -71,6 +71,8 @@ def get_latest_pull_timestamp() -> Optional[datetime]:
         return None
     return datetime.fromisoformat(value)
 
+# --- Full table access -----------------------------------------------------------
+
 def get_all_opportunities() -> pd.DataFrame:
     """
     Every opportunity row with every column, newest first by posted_date.
@@ -82,4 +84,113 @@ def get_all_opportunities() -> pd.DataFrame:
             "SELECT * FROM opportunities ORDER BY posted_date DESC",
             conn,
         )
+    return df
+
+# --- Breakdowns ---------------------------------------------------------------
+def get_opportunities_by_department(top_n: int = 10) -> pd.DataFrame:
+    """Top N departments by count of active opportunities."""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            """SELECT department AS label, COUNT(*) AS count
+                FROM opportunities
+                WHERE department IS NOT NULL AND department != '' 
+                GROUP BY department
+                ORDER BY count DESC
+                LIMIT ?""",
+            conn,
+            params=(top_n,),
+        )
+    return df
+
+def get_opportunities_by_naics(top_n: int = 10) -> pd.DataFrame:
+    """Top N NAICS codes by opportunity count."""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            """SELECT naics_code AS label, COUNT(*) AS count
+               FROM opportunities
+               WHERE naics_code IS NOT NULL AND naics_code != ''
+               GROUP BY naics_code
+               ORDER BY count DESC
+               LIMIT ?""",
+            conn,
+            params=(top_n,),
+        )
+    return df
+
+def get_opportunities_by_set_aside() -> pd.DataFrame:
+    """Top set-aside types by count of opportunities."""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            """SELECT COALESCE(NULLIF(set_aside_type, ''), 'Unrestricted') AS label,
+                    COUNT(*) AS count
+                FROM opportunities
+                GROUP BY label
+                ORDER BY count DESC""",
+            conn,
+        )
+    return df
+
+
+def get_opportunities_by_notice_type() -> pd.DataFrame:
+    """Opportunity counts by human-readable notice type (base_type)."""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            """SELECT COALESCE(NULLIF(base_type, ''), '(unknown)') AS label,
+                      COUNT(*) AS count
+               FROM opportunities
+               GROUP BY label
+               ORDER BY count DESC""",
+            conn,
+        )
+    return df
+
+
+def get_opportunities_posted_by_day() -> pd.DataFrame:
+    """Count of opportunities posted each calendar day."""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            """SELECT DATE(posted_date) AS date, COUNT(*) AS count
+               FROM opportunities
+               WHERE posted_date IS NOT NULL AND posted_date != ''
+               GROUP BY DATE(posted_date)
+               ORDER BY date ASC""",
+            conn,
+        )
+    # Convert date string → datetime so the line chart's x-axis
+    # understands it as time and spaces values accordingly.
+    df["date"] = pd.to_datetime(df["date"])
+    return df
+
+# --- Office Coverage -----------------------------------------------------------
+
+def get_office_coverage() -> pd.DataFrame:
+    """
+    One row per office that has surfaced at least one opportunity.
+
+    Source of truth: the opportunity_offices junction, which the puller
+    populates with real office codes (e.g., '36C10B') via match_office().
+    Office *names* come from opportunities.office (best-effort, since
+    different opps matched against the same code can carry slightly
+    different office strings from the API).
+    """
+    sql = """
+    SELECT
+        oo.office_code,
+        MAX(o.office) AS office_name,
+        COUNT(DISTINCT oo.opportunity_id) AS opps_count,
+        SUM(CASE WHEN o.active = 'Yes' THEN 1 ELSE 0 END) AS active_opps,
+        MIN(oo.first_seen_via_office_at) AS first_discovered_at,
+        MAX(o.last_updated_at)            AS last_activity_at
+    FROM opportunity_offices oo
+    JOIN opportunities o ON oo.opportunity_id = o.id
+    GROUP BY oo.office_code
+    ORDER BY opps_count DESC, oo.office_code ASC
+    """
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(sql, conn)
+
+    # Make timestamps proper datetimes so Streamlit renders them nicely.
+    df["first_discovered_at"] = pd.to_datetime(df["first_discovered_at"], errors="coerce")
+    df["last_activity_at"]    = pd.to_datetime(df["last_activity_at"],    errors="coerce")
+
     return df
