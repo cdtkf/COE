@@ -25,8 +25,8 @@ from pathlib import Path
 
 import yaml
 
-from sam_client import SAMClient, SAMClientError
-from db import Database
+from coe.puller.sam_client import SAMClient, SAMClientError
+from coe.puller.sqlite_db import Database
 
 logger = logging.getLogger("sam_puller")
 
@@ -242,10 +242,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Pull contract opportunities from SAM.gov"
     )
+    # Repo root is two levels up from coe/puller/puller.py
+    default_config = Path(__file__).resolve().parents[2] / "config.yaml"
     parser.add_argument(
         "--config",
-        default=str(Path(__file__).parent / "config.yaml"),
-        help="Path to config.yaml (default: ./config.yaml)"
+        default=str(default_config),
+        help=f"Path to config.yaml (default: {default_config})"
     )
     parser.add_argument(
         "--force-lookback",

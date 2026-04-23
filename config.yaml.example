@@ -20,7 +20,7 @@ settings:
   request_delay: 1.0
 
   # Database file path (relative to this config file)
-  database: "opportunities.db"
+  database: "data/opportunities.db"
 
   # Log level: DEBUG, INFO, WARNING, ERROR
   log_level: "INFO"

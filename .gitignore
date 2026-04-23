@@ -1,7 +1,11 @@
-# Database
-*.db
-*.db-wal
-*.db-shm
+# Generated data
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/*.csv
+data/*.xlsx
+# Keep the folder itself tracked
+!data/.gitkeep
 
 # Generated reports
 opportunities_export_*.csv
