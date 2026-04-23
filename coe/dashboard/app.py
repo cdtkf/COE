@@ -14,5 +14,24 @@ st.title("Contract Opportunity Engine — Puller Dashboard")
 st.caption("Live view into what the SAM.gov puller has collected.")
 
 # --- KPI row ----------------------------------------------------------- 
-total = queries.get_total_opportunities()
-st.metric(label="Total opportunities", value=f"{total:,}")
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    total = queries.get_total_opportunities()
+    st.metric(label="Total opportunities", value=f"{total:,}")
+
+with col2:
+    active = queries.get_active_opportunities()
+    st.metric(label="Active", value=f"{active:,}")
+
+with col3:
+    departments = queries.get_departments_covered()
+    st.metric(label="Departments covered", value=f"{departments:,}")
+
+with col4:
+    latest = queries.get_latest_pull_timestamp()
+    if latest is None:
+        latest_display = "Never"
+    else:
+        latest_display = latest.strftime("%b %d, %I:%M %p")
+    st.metric(label="Last pull", value=latest_display)

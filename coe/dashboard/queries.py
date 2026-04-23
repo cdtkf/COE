@@ -12,6 +12,9 @@ import sqlite3
 import pandas as pd
 import yaml
 
+from datetime import datetime
+from typing import Optional
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = REPO_ROOT / "config.yaml"
 
@@ -36,3 +39,34 @@ def get_total_opportunities() -> int:
     with _connect_readonly() as conn:
         df = pd.read_sql_query("SELECT COUNT(*) AS n FROM opportunities", conn)
     return int(df["n"].iloc[0])
+
+def get_active_opportunities() -> int:
+    """Count of rows in the opportunities table where active = Yes"""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query("SELECT COUNT(*) AS n FROM opportunities WHERE active = 'Yes'", conn)
+    return int(df["n"].iloc[0])
+
+def get_departments_covered() -> int:
+    """Count of distinct top-level departments represented in opportunities."""
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            "SELECT COUNT(DISTINCT department) AS n FROM opportunities",
+            conn,
+        )
+    return int(df["n"].iloc[0])
+
+def get_latest_pull_timestamp() -> Optional[datetime]:
+    """
+    Timestamp of the most recent successful pull run across all offices.
+    Returns None if the puller has never run successfully.
+    """
+    with _connect_readonly() as conn:
+        df = pd.read_sql_query(
+            "SELECT MAX(pulled_at) AS latest FROM pull_history "
+            "WHERE status = 'success'",
+            conn,
+        )
+    value = df["latest"].iloc[0]
+    if value is None or pd.isna(value):
+        return None
+    return datetime.fromisoformat(value)
