@@ -25,8 +25,8 @@ from pathlib import Path
 
 import yaml
 
-from sam_client import SAMClient, SAMClientError
-from db import Database
+from coe.puller.sam_client import SAMClient, SAMClientError
+from coe.puller.sqlite_db import Database
 
 logger = logging.getLogger("sam_puller")
 
