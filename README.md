@@ -43,9 +43,12 @@ sam-gov-puller/
 │   │   ├── matcher.py       # Score opportunities using retrieval context
 │   │   ├── prompts.py       # LLM prompt templates
 │   │   └── compare.py       # Old-vs-new pipeline comparison harness
-│   └── reporting/           # Output-side utilities
-│       ├── report.py        # Generate ranked CSV + XLSX reports
-│       └── query.py         # CLI to browse/search/export the SQLite DB
+│   ├── reporting/           # Output-side utilities
+│   │   ├── report.py        # Generate ranked CSV + XLSX reports
+│   │   └── query.py         # CLI to browse/search/export the SQLite DB
+│   └── dashboard/           # Streamlit dashboard over the SQLite DB
+│       ├── app.py           # UI layout + sidebar filters
+│       └── queries.py       # Read-only SQL + pandas DataFrames
 │
 ├── data/                    # Generated artifacts — all gitignored
 │   └── opportunities.db     # SQLite database (auto-created on first run)
@@ -109,6 +112,28 @@ python -m coe.reporting.query export --office 36C776     # Export filtered to CS
 ```bash
 python -m coe.reporting.report                           # Generate ranked CSV + XLSX of scored opps
 ```
+
+### Dashboard
+
+A read-only Streamlit dashboard surfaces puller results and corpus stats without hitting the DB more than once per minute.
+
+**Sections:**
+- KPI row — total / active / departments covered / latest pull
+- Opportunity browser — sortable, searchable table of every column
+- Breakdowns — top-10 departments and NAICS, plus set-aside and notice-type bar charts and a posted-date trend line
+- Office coverage — per-office opp counts, active share, first-discovered and last-activity timestamps
+
+**Sidebar filters** apply to every section:
+- Active-only toggle
+- Posted-date range (optional)
+
+**Run:**
+
+```bash
+PYTHONPATH=. streamlit run coe/dashboard/app.py
+```
+
+Opens at http://localhost:8501. Query results cache for 60 seconds; restart Streamlit or wait for the TTL to see fresh puller data. The dashboard opens the SQLite DB in read-only URI mode, so it cannot modify the puller's database.
 
 ### Capability Profile Pipeline (Phase 2)
 
@@ -202,7 +227,8 @@ See `coe/models/` for the SQLAlchemy definitions. Key tables: `proposals`, `serv
 - [x] Hybrid retrieval (vector + BM25 + RRF + reranker)
 - [x] Scoring engine with audit trail via `scoring_runs`
 - [x] Report generator producing ranked CSV + XLSX
-- [ ] Dashboard (Streamlit MVP → React+FastAPI)
+- [x] Streamlit dashboard over the SQLite puller DB (KPIs, browser, breakdowns, office coverage, filters, caching)
+- [ ] Dashboard migration to React + FastAPI
 - [ ] Migrate puller storage from SQLite to Postgres
 
 ## Known Issues & Quirks
