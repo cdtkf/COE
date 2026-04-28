@@ -18,6 +18,11 @@ from typing import Optional
 import streamlit as st
 
 from coe.dashboard import queries
+from coe.dashboard.export import df_to_xlsx_bytes
+
+XLSX_MIME = (
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
 
 st.set_page_config(page_title="COE — Puller Dashboard", layout="wide")
 
@@ -130,6 +135,13 @@ with tab_naics:
                 ),
             },
         )
+        st.download_button(
+            label="Download as XLSX",
+            data=df_to_xlsx_bytes(sector_df, sheet_name="NAICS sectors"),
+            file_name="coe-naics-sectors.xlsx",
+            mime=XLSX_MIME,
+            key="dl_naics_sectors",
+        )
 
     st.divider()
     st.subheader("By NAICS Codes")
@@ -173,6 +185,15 @@ with tab_naics:
                 ),
             },
         )
+        st.download_button(
+            label="Download as XLSX",
+            data=df_to_xlsx_bytes(
+                opps_for_code, sheet_name=f"NAICS {chosen_code}"
+            ),
+            file_name=f"coe-naics-{chosen_code}-opps.xlsx",
+            mime=XLSX_MIME,
+            key=f"dl_naics_code_{chosen_code}",
+        )
 
 
 # ----- Offices tab -----------------------------------------------------
@@ -200,6 +221,13 @@ with tab_offices:
                 "active_opps": st.column_config.NumberColumn("Active", format="%d"),
                 "office_count": st.column_config.NumberColumn("Offices", format="%d"),
             },
+        )
+        st.download_button(
+            label="Download as XLSX",
+            data=df_to_xlsx_bytes(dept_df, sheet_name="Departments"),
+            file_name="coe-departments.xlsx",
+            mime=XLSX_MIME,
+            key="dl_departments",
         )
 
     st.divider()
@@ -232,6 +260,16 @@ with tab_offices:
                 ),
                 "active_opps": st.column_config.NumberColumn("Active", format="%d"),
             },
+        )
+        st.download_button(
+            label="Download as XLSX",
+            data=df_to_xlsx_bytes(
+                offices_in_dept[["office", "office_code", "opps_count", "active_opps"]],
+                sheet_name="Offices",
+            ),
+            file_name=f"coe-offices-{chosen_dept[:30].replace(' ', '_')}.xlsx",
+            mime=XLSX_MIME,
+            key="dl_offices_in_dept",
         )
 
         # Office picker → opportunities.
@@ -282,6 +320,19 @@ with tab_offices:
                 ),
             },
         )
+        # Office name can contain spaces / slashes — keep filenames sane.
+        _office_slug = (
+            (chosen_row["office_code"] or chosen_row["office"])
+            .replace("/", "_")
+            .replace(" ", "_")[:40]
+        )
+        st.download_button(
+            label="Download as XLSX",
+            data=df_to_xlsx_bytes(opps_for_office, sheet_name="Office opps"),
+            file_name=f"coe-office-{_office_slug}-opps.xlsx",
+            mime=XLSX_MIME,
+            key="dl_office_opps",
+        )
 
     # Tucked-away coverage table — same data as before, just out of the way.
     with st.expander("Office coverage (puller diagnostics)"):
@@ -307,6 +358,13 @@ with tab_offices:
                 ),
             },
         )
+        st.download_button(
+            label="Download as XLSX",
+            data=df_to_xlsx_bytes(offices_df, sheet_name="Office coverage"),
+            file_name="coe-office-coverage.xlsx",
+            mime=XLSX_MIME,
+            key="dl_office_coverage",
+        )
 
 
 # ----- All opportunities tab ------------------------------------------
@@ -323,4 +381,11 @@ with tab_opps:
                 "SAM.gov link", display_text="Open"
             ),
         },
+    )
+    st.download_button(
+        label="Download as XLSX",
+        data=df_to_xlsx_bytes(opps_df, sheet_name="All opportunities"),
+        file_name="coe-all-opportunities.xlsx",
+        mime=XLSX_MIME,
+        key="dl_all_opps",
     )
