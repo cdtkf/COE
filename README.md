@@ -96,15 +96,20 @@ python -m coe.puller.puller --reset --force-lookback 30  # Fresh start with 30-d
 python -m coe.reporting.query                            # Summary dashboard
 python -m coe.reporting.query list                       # List recent opportunities
 python -m coe.reporting.query list --office 36C10B       # Filter by office
+python -m coe.reporting.query list --office 36C10B 36C776 # Filter by multiple offices
 python -m coe.reporting.query list --search "cyber"      # Search titles
 python -m coe.reporting.query list --notice-type "Solicitation"  # RFPs only
 python -m coe.reporting.query list --notice-type "Sources Sought" # RFIs only
 python -m coe.reporting.query list --active --days 7     # Active opps from last week
+python -m coe.reporting.query list --today               # Only opportunities posted today
 python -m coe.reporting.query offices                    # Per-office breakdown
 python -m coe.reporting.query detail <notice_id>         # Full details for one opportunity
 python -m coe.reporting.query history                    # Pull run history
 python -m coe.reporting.query export                     # Export all to CSV
 python -m coe.reporting.query export --office 36C776     # Export filtered to CSV
+python -m coe.reporting.query export --office 36C10B 36C776 # Export multiple offices to CSV
+python -m coe.reporting.query export --today             # Export only today's opportunities
+python -m coe.reporting.query export --today --office 36C776 # Today's opps for one or more offices
 ```
 
 ### Report Generation
@@ -162,16 +167,16 @@ A Cowork scheduled task (`sam-gov-daily-pull`) runs the puller every day at 7am.
 
 | Code | Office |
 |------|--------|
-| 36C10A | VA TAC Austin |
-| 36C10B | VA Technology Acquisition Center NJ |
-| 36C10D | Veterans Benefit Administration VBA |
-| 36C10G | VA Strategic Acquisition Center Fredericksburg |
-| 36C10X | VA Strategic Acquisition Center Frederick |
+| 36C10A | VA TAC Austin | #yes
+| 36C10B | VA Technology Acquisition Center NJ | #yes
+| 36C10D | Veterans Benefit Administration VBA | #yes
+| 36C10G | VA Strategic Acquisition Center Fredericksburg | #yes
+| 36C10X | VA Strategic Acquisition Center Frederick | #yes
 | 36C776 | PCAC |
 | FA4484 | Air National Guard HQ |
 | FA7014 | Air Force Medical Service Base Specific |
 | FA8052 | Air Force Medical Service |
-| HT0011 | DHA |
+| HT0011 | DHA | #yes
 | SP4701 | Defense Logistics Agency |
 | SP4703 | Defense Logistics Agency 2 |
 | W6QK ACC-APG | Army Contracting Command |

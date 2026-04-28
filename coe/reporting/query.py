@@ -5,19 +5,24 @@ SAM.gov Opportunities Query Utility
 Quick way to browse and search the local opportunities database.
 
 Usage:
-    python query.py                          # Show summary stats
-    python query.py list                     # List recent opportunities
-    python query.py list --office 36C10B     # Filter by office code
-    python query.py list --naics 541512      # Filter by NAICS code
-    python query.py list --days 7            # Show last 7 days
-    python query.py list --search "cyber"    # Search titles
-    python query.py list --active            # Only active/open opportunities
-    python query.py list --limit 50          # Show up to 50 results
-    python query.py offices                  # Show per-office counts
-    python query.py detail <notice_id>       # Show full details for one opportunity
-    python query.py history                  # Show recent pull history
-    python query.py export                   # Export all to CSV
-    python query.py export --office 36C10B   # Export filtered to CSV
+    python query.py                                    # Show summary stats
+    python query.py list                               # List recent opportunities
+    python query.py list --office 36C10B               # Filter by office code
+    python query.py list --office 36C10B 36C776        # Filter by multiple offices
+    python query.py list --naics 541512                # Filter by NAICS code
+    python query.py list --days 7                      # Show last 7 days
+    python query.py list --today                       # Only opportunities posted today
+    python query.py list --search "cyber"              # Search titles
+    python query.py list --active                      # Only active/open opportunities
+    python query.py list --limit 50                    # Show up to 50 results
+    python query.py offices                            # Show per-office counts
+    python query.py detail <notice_id>                 # Show full details for one opportunity
+    python query.py history                            # Show recent pull history
+    python query.py export                             # Export all to CSV
+    python query.py export --office 36C10B             # Export filtered to CSV
+    python query.py export --office 36C10B 36C776      # Export multiple offices to CSV
+    python query.py export --today                     # Export only today's opportunities
+    python query.py export --today --office 36C10B     # Today's opps for one or more offices
 """
 
 import sys
@@ -97,10 +102,12 @@ def cmd_list(args):
     params = []
 
     if args.office:
+        placeholders = ",".join("?" * len(args.office))
         conditions.append(
-            "o.id IN (SELECT opportunity_id FROM opportunity_offices WHERE office_code = ?)"
+            f"o.id IN (SELECT opportunity_id FROM opportunity_offices "
+            f"WHERE office_code IN ({placeholders}))"
         )
-        params.append(args.office)
+        params.extend(args.office)
 
     if args.naics:
         conditions.append("o.naics_code = ?")
@@ -113,7 +120,10 @@ def cmd_list(args):
     if args.active:
         conditions.append("o.active = 'Yes'")
 
-    if args.days:
+    if getattr(args, "today", False):
+        conditions.append("o.posted_date = ?")
+        params.append(datetime.now().strftime("%Y-%m-%d"))
+    elif args.days is not None:
         cutoff = (datetime.now() - timedelta(days=args.days)).strftime("%Y-%m-%d")
         conditions.append("o.posted_date >= ?")
         params.append(cutoff)
@@ -296,15 +306,20 @@ def cmd_export(args):
     params = []
 
     if args.office:
+        placeholders = ",".join("?" * len(args.office))
         conditions.append(
-            "o.id IN (SELECT opportunity_id FROM opportunity_offices WHERE office_code = ?)"
+            f"o.id IN (SELECT opportunity_id FROM opportunity_offices "
+            f"WHERE office_code IN ({placeholders}))"
         )
-        params.append(args.office)
+        params.extend(args.office)
 
     if args.active:
         conditions.append("o.active = 'Yes'")
 
-    if args.days:
+    if getattr(args, "today", False):
+        conditions.append("o.posted_date = ?")
+        params.append(datetime.now().strftime("%Y-%m-%d"))
+    elif args.days is not None:
         cutoff = (datetime.now() - timedelta(days=args.days)).strftime("%Y-%m-%d")
         conditions.append("o.posted_date >= ?")
         params.append(cutoff)
@@ -352,11 +367,14 @@ def main():
     # Default (no subcommand) shows stats
     # --- list ---
     list_parser = subparsers.add_parser("list", help="List opportunities")
-    list_parser.add_argument("--office", help="Filter by office code")
+    list_parser.add_argument("--office", nargs="+",
+                             help="Filter by one or more office codes (space-separated)")
     list_parser.add_argument("--naics", help="Filter by NAICS code")
     list_parser.add_argument("--search", help="Search in titles")
     list_parser.add_argument("--active", action="store_true", help="Only active opportunities")
-    list_parser.add_argument("--days", type=int, help="Only show last N days")
+    list_parser.add_argument("--today", action="store_true",
+                             help="Only opportunities posted today (overrides --days)")
+    list_parser.add_argument("--days", type=int, help="Only show last N days (0 = today only)")
     list_parser.add_argument("--notice-type", help="Filter by notice type")
     list_parser.add_argument("--set-aside", help="Filter by set-aside code")
     list_parser.add_argument("--limit", type=int, default=25, help="Max results (default: 25)")
@@ -374,9 +392,12 @@ def main():
 
     # --- export ---
     export_parser = subparsers.add_parser("export", help="Export to CSV")
-    export_parser.add_argument("--office", help="Filter by office code")
+    export_parser.add_argument("--office", nargs="+",
+                               help="Filter by one or more office codes (space-separated)")
     export_parser.add_argument("--active", action="store_true", help="Only active")
-    export_parser.add_argument("--days", type=int, help="Only last N days")
+    export_parser.add_argument("--today", action="store_true",
+                               help="Only opportunities posted today (overrides --days)")
+    export_parser.add_argument("--days", type=int, help="Only last N days (0 = today only)")
     export_parser.add_argument("--output", help="Output filename (default: auto-named)")
 
     args = parser.parse_args()
