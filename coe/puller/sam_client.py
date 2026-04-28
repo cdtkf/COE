@@ -21,9 +21,11 @@ logger = logging.getLogger(__name__)
 # SAM.gov Opportunities API v2
 BASE_URL = "https://api.sam.gov/opportunities/v2/search"
 
-# All notice types: solicitation, presolicitation, sources sought,
-# combined synopsis, intent to bundle, special notice, sale of surplus
-NOTICE_TYPES = "o,p,r,k,i,s,g"
+# We deliberately do NOT pass `ntype` to the API. Omitting it returns every
+# notice type SAM.gov supports — solicitations, presol, sources sought,
+# award notices, justifications, special notices, etc. — and is future-proof
+# against any new notice types SAM.gov adds. Filtering by type, if needed,
+# should happen downstream in the database/dashboard layer, not here.
 
 
 class SAMClientError(Exception):
@@ -148,7 +150,6 @@ class SAMClient:
             params = {
                 "postedFrom": date_from,
                 "postedTo": date_to,
-                "ntype": NOTICE_TYPES,
                 "limit": page_size,
                 "offset": offset,
             }
@@ -193,33 +194,52 @@ class SAMClient:
     def match_office(opportunity: dict, office_codes: set[str]) -> list[str]:
         """
         Check if an opportunity belongs to any of the tracked offices.
-        Matches against fullParentPathCode which contains the org hierarchy.
 
-        Example fullParentPathCode:
-            "097.97AS.DLA AVIATION.DLA AV RICHMOND.SPE4A6"
-        The office code is typically the last segment, but we check all
-        segments to be safe.
+        Matches against two fields, in order:
+          1. fullParentPathCode — the org hierarchy. Example:
+             "097.97AS.DLA AVIATION.DLA AV RICHMOND.SPE4A6"
+             The leaf office code is usually the last segment, but every
+             segment is checked for safety.
+          2. solicitationNumber — government solicitation numbers almost
+             always start with the buying office code (e.g., "36C10B23R0123"
+             starts with "36C10B"). This catches opportunities where the
+             API's path code doesn't include the leaf office verbatim.
 
         Args:
             opportunity: Raw opportunity dict from the API.
             office_codes: Set of office codes to match against.
 
         Returns:
-            List of matching office codes (usually 1, but could be multiple
-            if the org hierarchy contains multiple tracked codes).
+            Deduplicated list of matching office codes, with path-code
+            matches listed before solicitation-number-only matches.
         """
-        path_code = opportunity.get("fullParentPathCode", "")
-        if not path_code:
-            return []
+        path_code = opportunity.get("fullParentPathCode", "") or ""
+        solicitation = opportunity.get("solicitationNumber", "") or ""
 
-        # Split the path into segments and check each against our office codes
-        segments = path_code.split(".")
-        matched = []
-        for code in office_codes:
-            for segment in segments:
-                if code == segment or segment.startswith(code) or code in segment:
+        matched: list[str] = []
+        seen: set[str] = set()
+
+        # 1. Path-code segments
+        if path_code:
+            segments = path_code.split(".")
+            for code in office_codes:
+                if code in seen:
+                    continue
+                for segment in segments:
+                    if code == segment or segment.startswith(code) or code in segment:
+                        matched.append(code)
+                        seen.add(code)
+                        break
+
+        # 2. Solicitation number prefix (case-insensitive)
+        if solicitation:
+            sol_upper = solicitation.upper()
+            for code in office_codes:
+                if code in seen:
+                    continue
+                if sol_upper.startswith(code.upper()):
                     matched.append(code)
-                    break
+                    seen.add(code)
 
         return matched
 
