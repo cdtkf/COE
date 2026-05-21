@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coe"
+version = "0.1.0"
+description = "Contract Opportunity Engine — SAM.gov puller, scoring engine, and Streamlit dashboard."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+
+# Runtime deps are managed in requirements.txt for now to keep one source of
+# truth across local dev, Docker, and Streamlit Cloud. The presence of this
+# file is what makes `coe` and its subpackages importable after `pip install .`
+# (or `pip install -e .`) from the repo root.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["coe*"]
+exclude = ["tests*", "data*", "logs*", "profiles*", "docs*"]

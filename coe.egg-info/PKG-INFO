@@ -1,0 +1,278 @@
+Metadata-Version: 2.4
+Name: coe
+Version: 0.1.0
+Summary: Contract Opportunity Engine — SAM.gov puller, scoring engine, and Streamlit dashboard.
+License: MIT License
+        
+        Copyright (c) 2026 RPG-Caleb
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# SAM.gov Contract Opportunities Puller
+
+Automated daily puller that fetches new federal contract opportunities from SAM.gov, filters them to 17 tracked government offices, and stores them in a local SQLite database. Built for ReefPoint Group's contract opportunity matching pipeline.
+
+## How It Works
+
+1. Pulls all recently posted opportunities from the SAM.gov Opportunities API (v2)
+2. Filters client-side by matching `fullParentPathCode` against your tracked office codes
+3. Upserts into SQLite with deduplication (won't store the same opportunity twice)
+4. Logs a per-office breakdown of what was found
+5. Runs daily at 7am via a Cowork scheduled task
+
+## Project Layout
+
+The codebase is organized as a `coe` Python package (Contract Opportunity Engine) with subpackages for each concern:
+
+```
+sam-gov-puller/
+├── config.yaml              # API key + tracked office codes + settings (gitignored)
+├── config.yaml.example      # Template for config.yaml
+├── docker-compose.yml       # Local Postgres + pgvector (for Phase 2 capability corpus)
+├── alembic.ini              # Alembic config for Postgres migrations
+├── requirements.txt         # Python dependencies
+├── README.md
+├── LICENSE
+│
+├── coe/                     # Main package
+│   ├── database.py          # Postgres session factory (Phase 2)
+│   ├── models/              # SQLAlchemy ORM models (capability, staging, scoring)
+│   ├── schemas/             # Pydantic schemas
+│   ├── migrations/          # Alembic migrations
+│   ├── puller/              # Phase 1 — SAM.gov puller + SQLite storage
+│   │   ├── puller.py        # Main daily-pull orchestration
+│   │   ├── sam_client.py    # SAM.gov API client (auth, pagination, rate limiting)
+│   │   └── sqlite_db.py     # SQLite schema + helpers for opportunities
+│   ├── profiles/            # Capability profile extraction pipeline
+│   │   ├── extract.py       # PDF → raw text extraction
+│   │   ├── migrate.py       # Legacy JSON profiles → proposed_records
+│   │   ├── promote.py       # Promote proposed_records into corpus tables
+│   │   └── embeddings.py    # Generate vector embeddings for the corpus
+│   ├── scoring/             # Phase 2 — retrieval + LLM scoring
+│   │   ├── retrieval.py     # Hybrid vector + BM25 + RRF + reranker
+│   │   ├── matcher.py       # Score opportunities using retrieval context
+│   │   ├── prompts.py       # LLM prompt templates
+│   │   └── compare.py       # Old-vs-new pipeline comparison harness
+│   ├── reporting/           # Output-side utilities
+│   │   ├── report.py        # Generate ranked CSV + XLSX reports
+│   │   └── query.py         # CLI to browse/search/export the SQLite DB
+│   └── dashboard/           # Streamlit dashboard over the SQLite DB
+│       ├── app.py           # UI layout + sidebar filters
+│       └── queries.py       # Read-only SQL + pandas DataFrames
+│
+├── data/                    # Generated artifacts — all gitignored
+│   └── opportunities.db     # SQLite database (auto-created on first run)
+├── docs/                    # Design docs (Phase 2 implementation plan, etc.)
+├── logs/                    # Daily log files (gitignored)
+└── profiles/                # Capability profile JSONs (gitignored except composite)
+```
+
+## Setup
+
+### Prerequisites
+- Python 3.10+
+- A free SAM.gov API key from https://api.sam.gov
+- Docker (for Phase 2's local Postgres — not required for the Phase 1 puller)
+
+### Install
+
+```bash
+cd sam-gov-puller
+pip install -r requirements.txt
+```
+
+### Configure
+
+Copy `config.yaml.example` to `config.yaml`, then edit:
+- Set your `api_key`
+- Add/remove office codes under `offices:`
+
+## Usage
+
+All entry points are invoked as Python modules from the repo root so package imports resolve correctly.
+
+### Daily Pull (Phase 1)
+
+```bash
+python -m coe.puller.puller                      # Normal run (incremental since last pull)
+python -m coe.puller.puller --force-lookback 10  # Pull last 10 days
+python -m coe.puller.puller --reset              # Wipe DB and start fresh
+python -m coe.puller.puller --reset --force-lookback 30  # Fresh start with 30-day backfill
+```
+
+### Query the Database
+
+```bash
+python -m coe.reporting.query                            # Summary dashboard
+python -m coe.reporting.query list                       # List recent opportunities
+python -m coe.reporting.query list --office 36C10B       # Filter by office
+python -m coe.reporting.query list --office 36C10B 36C776 # Filter by multiple offices
+python -m coe.reporting.query list --search "cyber"      # Search titles
+python -m coe.reporting.query list --notice-type "Solicitation"  # RFPs only
+python -m coe.reporting.query list --notice-type "Sources Sought" # RFIs only
+python -m coe.reporting.query list --active --days 7     # Active opps from last week
+python -m coe.reporting.query list --today               # Only opportunities posted today
+python -m coe.reporting.query offices                    # Per-office breakdown
+python -m coe.reporting.query detail <notice_id>         # Full details for one opportunity
+python -m coe.reporting.query history                    # Pull run history
+python -m coe.reporting.query export                     # Export all to CSV
+python -m coe.reporting.query export --office 36C776     # Export filtered to CSV
+python -m coe.reporting.query export --office 36C10B 36C776 # Export multiple offices to CSV
+python -m coe.reporting.query export --today             # Export only today's opportunities
+python -m coe.reporting.query export --today --office 36C776 # Today's opps for one or more offices
+```
+
+### Report Generation
+
+```bash
+python -m coe.reporting.report                           # Generate ranked CSV + XLSX of scored opps
+```
+
+### Dashboard
+
+A read-only Streamlit dashboard surfaces puller results and corpus stats without hitting the DB more than once per minute.
+
+**Sections:**
+- KPI row — total / active / departments covered / latest pull
+- Opportunity browser — sortable, searchable table of every column
+- Breakdowns — top-10 departments and NAICS, plus set-aside and notice-type bar charts and a posted-date trend line
+- Office coverage — per-office opp counts, active share, first-discovered and last-activity timestamps
+
+**Sidebar filters** apply to every section:
+- Active-only toggle
+- Posted-date range (optional)
+
+**Run:**
+
+```bash
+PYTHONPATH=. streamlit run coe/dashboard/app.py
+```
+
+Opens at http://localhost:8501. Query results cache for 60 seconds; restart Streamlit or wait for the TTL to see fresh puller data. The dashboard opens the SQLite DB in read-only URI mode, so it cannot modify the puller's database.
+
+### Capability Profile Pipeline (Phase 2)
+
+Requires local Postgres running (`docker compose up -d`) and Ollama installed.
+
+```bash
+python -m coe.profiles.extract     # PDF → raw text extraction
+python -m coe.profiles.migrate     # Migrate legacy JSON profiles into proposed_records
+python -m coe.profiles.promote     # Promote proposed_records into corpus tables (idempotent)
+python -m coe.profiles.embeddings  # Generate embeddings for the capability corpus
+```
+
+### Scoring (Phase 2)
+
+```bash
+python -m coe.scoring.matcher              # Score a batch of unscored opportunities
+python -m coe.scoring.matcher --limit 0    # Score all unscored
+python -m coe.scoring.compare              # Old-vs-new pipeline comparison harness
+```
+
+### Scheduled Task
+
+A Cowork scheduled task (`sam-gov-daily-pull`) runs the puller every day at 7am. It appears in the Scheduled section of the Claude sidebar. You can also trigger it manually from there. The task command is `python -m coe.puller.puller`.
+
+## Tracked Offices (17)
+
+| Code | Office |
+|------|--------|
+| 36C10A | VA TAC Austin | #yes
+| 36C10B | VA Technology Acquisition Center NJ | #yes
+| 36C10D | Veterans Benefit Administration VBA | #yes
+| 36C10G | VA Strategic Acquisition Center Fredericksburg | #yes
+| 36C10X | VA Strategic Acquisition Center Frederick | #yes
+| 36C776 | PCAC |
+| FA4484 | Air National Guard HQ |
+| FA7014 | Air Force Medical Service Base Specific |
+| FA8052 | Air Force Medical Service |
+| HT0011 | DHA | #yes
+| SP4701 | Defense Logistics Agency |
+| SP4703 | Defense Logistics Agency 2 |
+| W6QK ACC-APG | Army Contracting Command |
+| W81K04 | Army Health Contracting Activity |
+| W912DY | US Army USACE |
+| W912JA | National Guard Bureau Alabama |
+| W912LQ | National Guard Bureau Virginia |
+
+To add a new office, append to `config.yaml`:
+```yaml
+  - code: "NEWCODE"
+    name: "Office Name"
+```
+
+## API Notes
+
+- **Rate limits:** SAM.gov imposes daily rate limits per API key. A typical daily run uses 2-3 API calls and won't hit limits. Backfills of 10+ days may require a second key.
+- **No server-side office filter:** The SAM.gov API does not support filtering by office code. We pull all recent opportunities and filter locally.
+- **Partial results:** If rate-limited mid-pull, the script saves whatever it already fetched rather than losing everything.
+- **Two API keys** are configured in `config.yaml` (work + personal). Swap the commented line if one is rate-limited.
+
+## Database Schema
+
+### Phase 1 — SQLite (`data/opportunities.db`)
+
+**opportunities** — One row per unique contract opportunity. Keyed on `notice_id`. Stores title, solicitation number, NAICS, PSC code, set-aside, agency hierarchy, dates, award info, place of performance, SAM.gov link, and the full raw API JSON.
+
+**opportunity_offices** — Junction table linking opportunities to the office codes that surfaced them.
+
+**pull_history** — Log of every pull attempt with counts and timing.
+
+**match_scores** — AI-generated opportunity-to-capability match scores (legacy; Phase 2 scoring is migrating to Postgres `scoring_runs`).
+
+### Phase 2 — Postgres + pgvector
+
+See `coe/models/` for the SQLAlchemy definitions. Key tables: `proposals`, `service_areas`, `technical_competencies`, `past_performances`, `domain_experiences`, `proposed_records` (staging), `scoring_runs`, `scoring_retrieved_records`.
+
+## Project Status
+
+### Phase 1 — SAM.gov Puller — Complete
+- [x] Project scaffolding and config
+- [x] SAM.gov API client with pagination and rate limiting
+- [x] SQLite database schema designed for future matching system
+- [x] Main puller script with incremental pulls
+- [x] Client-side office filtering via `fullParentPathCode`
+- [x] DB query and export utility
+- [x] Cowork scheduled task running daily at 7am
+- [x] Partial result saving if rate-limited mid-pull
+
+### Phase 2 — AI Capability Matching — In Progress
+- [x] Capability profiles extracted from past proposal PDFs
+- [x] Postgres + pgvector corpus with Alembic migrations
+- [x] Hybrid retrieval (vector + BM25 + RRF + reranker)
+- [x] Scoring engine with audit trail via `scoring_runs`
+- [x] Report generator producing ranked CSV + XLSX
+- [x] Streamlit dashboard over the SQLite puller DB (KPIs, browser, breakdowns, office coverage, filters, caching)
+- [ ] Dashboard migration to React + FastAPI
+- [ ] Migrate puller storage from SQLite to Postgres
+
+## Known Issues & Quirks
+
+**4 offices return zero matches** — VA TAC Austin (36C10A), Air Force Medical Service (FA8052), Army Contracting Command (W6QK ACC-APG), National Guard Bureau Alabama/Virginia (W912JA, W912LQ). These may post infrequently, or their codes may appear differently in `fullParentPathCode`. Monitor over time.
+
+**W6QK ACC-APG has a space in the code** — This may cause matching issues since `fullParentPathCode` segments are split on `.`. May need special handling.
+
+**SAM.gov API rate limits** — The daily limit resets at midnight GMT. A typical daily run won't hit it (~3 API calls), but backfills of 10+ days will. Two API keys are configured in `config.yaml` — swap if one is limited. The rate limit `Retry-After` header is returned as a date string, not seconds, which is handled correctly in `coe/puller/sam_client.py`.
+
+**First API page is slow** — The first request in a session can take 2-3 minutes due to SAM.gov server response time. Subsequent pages are fast (~1s each). This is normal.
