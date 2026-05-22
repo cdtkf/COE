@@ -32,3 +32,6 @@ __pycache__/
 # Config with secrets — use config.yaml.example as template
 config.yaml
 .env
+
+# Streamlit secrets — use .streamlit/secrets.toml.example as template
+.streamlit/secrets.toml

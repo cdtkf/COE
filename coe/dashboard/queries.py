@@ -1,38 +1,32 @@
 """
 queries.py —> Read-only data access for the dashboard.
 
-Every function here opens a read-only SQLite connection, runs one SQL query,
-and returns either a scalar or a pandas DataFrame. Keep this file free of
-Streamlit-specific imports EXCEPT for @st.cache_data decorators — caching
-is where Streamlit and the data layer intersect.
+Every function here opens a SQLAlchemy connection against the shared
+`coe.database.engine`, runs one SQL query, and returns either a scalar
+or a pandas DataFrame. Keep this file free of Streamlit-specific imports
+EXCEPT for @st.cache_data decorators — caching is where Streamlit and
+the data layer intersect.
+
+The dashboard reads from Postgres now (was SQLite). The connection URL
+is resolved by `coe.database` from the DATABASE_URL environment variable,
+which on Streamlit Cloud is populated from `st.secrets["DATABASE_URL"]`
+by a small bridge at the top of `app.py`.
+
+Parameter style is named (`:name`) for SQLAlchemy/Postgres compatibility.
+Empty-string date guards (`NULLIF(col, '')`) protect against SAM.gov rows
+where a date field is present-but-empty rather than NULL.
 """
 from datetime import datetime
-from pathlib import Path
 from typing import Optional
-import sqlite3
 
 import pandas as pd
 import streamlit as st
-import yaml
+from sqlalchemy import text
 
+from coe.database import engine
 from coe.dashboard.naics import NAICS_SECTORS, sector_label, sector_title
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_PATH = REPO_ROOT / "config.yaml"
-
 CACHE_TTL_SECONDS = 60  # How long query results stay cached
-
-
-def _load_db_path() -> Path:
-    with open(CONFIG_PATH) as f:
-        config = yaml.safe_load(f)
-    return REPO_ROOT / config["settings"]["database"]
-
-
-def _connect_readonly() -> sqlite3.Connection:
-    db_path = _load_db_path()
-    uri = f"file:{db_path}?mode=ro"
-    return sqlite3.connect(uri, uri=True)
 
 
 def _build_opps_filters(
@@ -40,10 +34,10 @@ def _build_opps_filters(
     date_from: Optional[str],
     date_to: Optional[str],
     table_alias: str = "",
-) -> tuple[str, list]:
+) -> tuple[str, dict]:
     """
-    Build a SQL WHERE-clause fragment plus its parameter list based on the
-    active-only/date-range filter state.
+    Build a SQL WHERE-clause fragment plus its parameter dict based on
+    the active-only / date-range filter state.
 
     Args:
         table_alias: Optional alias/prefix for column references
@@ -51,23 +45,24 @@ def _build_opps_filters(
 
     Returns:
         (sql_fragment, params). The fragment is either a valid WHERE body
-        or "1=1" (a no-op that's safe to AND into other clauses).
+        or "1=1" (a no-op that's safe to AND into other clauses). Params
+        is a dict of named placeholders to bind values.
     """
     prefix = f"{table_alias}." if table_alias else ""
     clauses: list[str] = []
-    params: list = []
+    params: dict = {}
 
     if active_only:
         clauses.append(f"{prefix}active = 'Yes'")
     if date_from:
-        clauses.append(f"{prefix}posted_date >= ?")
-        params.append(date_from)
+        clauses.append(f"{prefix}posted_date >= :date_from")
+        params["date_from"] = date_from
     if date_to:
-        clauses.append(f"{prefix}posted_date <= ?")
-        params.append(date_to)
+        clauses.append(f"{prefix}posted_date <= :date_to")
+        params["date_to"] = date_to
 
     if not clauses:
-        return "1=1", []
+        return "1=1", {}
     return " AND ".join(clauses), params
 
 
@@ -82,9 +77,9 @@ def get_total_opportunities(
 ) -> int:
     """Count of rows in the opportunities table, respecting filters."""
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"SELECT COUNT(*) AS n FROM opportunities WHERE {where_sql}",
+            text(f"SELECT COUNT(*) AS n FROM opportunities WHERE {where_sql}"),
             conn,
             params=params,
         )
@@ -100,9 +95,9 @@ def get_active_opportunities(
     where_sql, params = _build_opps_filters(
         active_only=True, date_from=date_from, date_to=date_to
     )
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"SELECT COUNT(*) AS n FROM opportunities WHERE {where_sql}",
+            text(f"SELECT COUNT(*) AS n FROM opportunities WHERE {where_sql}"),
             conn,
             params=params,
         )
@@ -116,9 +111,12 @@ def get_departments_covered(
     date_to: Optional[str] = None,
 ) -> int:
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"SELECT COUNT(DISTINCT department) AS n FROM opportunities WHERE {where_sql}",
+            text(
+                f"SELECT COUNT(DISTINCT department) AS n "
+                f"FROM opportunities WHERE {where_sql}"
+            ),
             conn,
             params=params,
         )
@@ -128,16 +126,23 @@ def get_departments_covered(
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_latest_pull_timestamp() -> Optional[datetime]:
     """Latest successful pull — unaffected by opps filters."""
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            "SELECT MAX(pulled_at) AS latest FROM pull_history "
-            "WHERE status = 'success'",
+            text(
+                "SELECT MAX(pulled_at) AS latest FROM pull_history "
+                "WHERE status = 'success'"
+            ),
             conn,
         )
     value = df["latest"].iloc[0]
     if value is None or pd.isna(value):
         return None
-    return datetime.fromisoformat(value)
+    # On Postgres TIMESTAMP columns pandas hands us a Timestamp/datetime
+    # directly — no need to parse from ISO string the way the SQLite
+    # version did.
+    if isinstance(value, datetime):
+        return value
+    return pd.to_datetime(value).to_pydatetime()
 
 
 # ---------------------------------------------------------------------
@@ -150,9 +155,12 @@ def get_all_opportunities(
     date_to: Optional[str] = None,
 ) -> pd.DataFrame:
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"SELECT * FROM opportunities WHERE {where_sql} ORDER BY posted_date DESC",
+            text(
+                f"SELECT * FROM opportunities WHERE {where_sql} "
+                f"ORDER BY posted_date DESC"
+            ),
             conn,
             params=params,
         )
@@ -170,16 +178,18 @@ def get_opportunities_by_department(
     date_to: Optional[str] = None,
 ) -> pd.DataFrame:
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    params = list(params) + [top_n]
-    with _connect_readonly() as conn:
+    params = {**params, "top_n": top_n}
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT department AS label, COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-                 AND department IS NOT NULL AND department != ''
-               GROUP BY department
-               ORDER BY count DESC
-               LIMIT ?""",
+            text(
+                f"""SELECT department AS label, COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                     AND department IS NOT NULL AND department != ''
+                   GROUP BY department
+                   ORDER BY count DESC
+                   LIMIT :top_n"""
+            ),
             conn,
             params=params,
         )
@@ -194,16 +204,18 @@ def get_opportunities_by_naics(
     date_to: Optional[str] = None,
 ) -> pd.DataFrame:
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    params = list(params) + [top_n]
-    with _connect_readonly() as conn:
+    params = {**params, "top_n": top_n}
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT naics_code AS label, COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-                 AND naics_code IS NOT NULL AND naics_code != ''
-               GROUP BY naics_code
-               ORDER BY count DESC
-               LIMIT ?""",
+            text(
+                f"""SELECT naics_code AS label, COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                     AND naics_code IS NOT NULL AND naics_code != ''
+                   GROUP BY naics_code
+                   ORDER BY count DESC
+                   LIMIT :top_n"""
+            ),
             conn,
             params=params,
         )
@@ -217,14 +229,16 @@ def get_opportunities_by_set_aside(
     date_to: Optional[str] = None,
 ) -> pd.DataFrame:
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT COALESCE(NULLIF(set_aside_type, ''), 'Unrestricted') AS label,
-                      COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-               GROUP BY label
-               ORDER BY count DESC""",
+            text(
+                f"""SELECT COALESCE(NULLIF(set_aside_type, ''), 'Unrestricted') AS label,
+                          COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                   GROUP BY label
+                   ORDER BY count DESC"""
+            ),
             conn,
             params=params,
         )
@@ -238,14 +252,16 @@ def get_opportunities_by_notice_type(
     date_to: Optional[str] = None,
 ) -> pd.DataFrame:
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT COALESCE(NULLIF(base_type, ''), '(unknown)') AS label,
-                      COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-               GROUP BY label
-               ORDER BY count DESC""",
+            text(
+                f"""SELECT COALESCE(NULLIF(base_type, ''), '(unknown)') AS label,
+                          COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                   GROUP BY label
+                   ORDER BY count DESC"""
+            ),
             conn,
             params=params,
         )
@@ -258,15 +274,23 @@ def get_opportunities_posted_by_day(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
 ) -> pd.DataFrame:
+    """
+    Daily posting counts. We cast posted_date (text) to DATE at query time.
+    The NULLIF guards against empty-string posted_dates that SAM.gov
+    occasionally returns — without it, the CAST would error on those rows.
+    """
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT DATE(posted_date) AS date, COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-                 AND posted_date IS NOT NULL AND posted_date != ''
-               GROUP BY DATE(posted_date)
-               ORDER BY date ASC""",
+            text(
+                f"""SELECT CAST(NULLIF(posted_date, '') AS DATE) AS date,
+                          COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                     AND posted_date IS NOT NULL AND posted_date != ''
+                   GROUP BY CAST(NULLIF(posted_date, '') AS DATE)
+                   ORDER BY date ASC"""
+            ),
             conn,
             params=params,
         )
@@ -287,7 +311,7 @@ def get_office_coverage(
     where_sql, params = _build_opps_filters(
         active_only, date_from, date_to, table_alias="o"
     )
-    sql = f"""
+    sql = text(f"""
     SELECT
         oo.office_code,
         MAX(o.office) AS office_name,
@@ -300,8 +324,8 @@ def get_office_coverage(
     WHERE {where_sql}
     GROUP BY oo.office_code
     ORDER BY opps_count DESC, oo.office_code ASC
-    """
-    with _connect_readonly() as conn:
+    """)
+    with engine.connect() as conn:
         df = pd.read_sql_query(sql, conn, params=params)
 
     df["first_discovered_at"] = pd.to_datetime(df["first_discovered_at"], errors="coerce")
@@ -322,19 +346,18 @@ def get_opportunities_by_naics_sector(
     Roll opportunities up to NAICS sector (first 2 digits of naics_code).
 
     Returns a DataFrame with columns: prefix, label, count.
-        - prefix: '54'                                         (raw 2-digit code)
-        - label:  '54 — Professional, Scientific, and ...'     (chart-friendly)
-        - count:  number of opportunities in that sector
     """
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT SUBSTR(naics_code, 1, 2) AS prefix, COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-                 AND naics_code IS NOT NULL AND naics_code != ''
-               GROUP BY SUBSTR(naics_code, 1, 2)
-               ORDER BY count DESC""",
+            text(
+                f"""SELECT SUBSTR(naics_code, 1, 2) AS prefix, COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                     AND naics_code IS NOT NULL AND naics_code != ''
+                   GROUP BY SUBSTR(naics_code, 1, 2)
+                   ORDER BY count DESC"""
+            ),
             conn,
             params=params,
         )
@@ -351,20 +374,18 @@ def get_naics_codes_with_counts(
     """
     Every NAICS code present in the filtered set, with its opportunity count
     and sector title. Used to populate the drill-down picker.
-
-    Returns columns: naics_code, sector_title, count, display
-        - display: 'NAICS 541512 — Professional, Scientific... (12 opps)'
-                   so the selectbox is self-explanatory.
     """
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    with _connect_readonly() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT naics_code, COUNT(*) AS count
-               FROM opportunities
-               WHERE {where_sql}
-                 AND naics_code IS NOT NULL AND naics_code != ''
-               GROUP BY naics_code
-               ORDER BY count DESC, naics_code ASC""",
+            text(
+                f"""SELECT naics_code, COUNT(*) AS count
+                   FROM opportunities
+                   WHERE {where_sql}
+                     AND naics_code IS NOT NULL AND naics_code != ''
+                   GROUP BY naics_code
+                   ORDER BY count DESC, naics_code ASC"""
+            ),
             conn,
             params=params,
         )
@@ -385,18 +406,20 @@ def get_opportunities_for_naics_code(
 ) -> pd.DataFrame:
     """
     All opportunities matching a specific NAICS code. Slim column set —
-    this is meant for in-tab drill-down display, not the full table view.
+    meant for in-tab drill-down display, not the full table view.
     """
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    params = list(params) + [naics_code]
-    with _connect_readonly() as conn:
+    params = {**params, "naics_code": naics_code}
+    with engine.connect() as conn:
         df = pd.read_sql_query(
-            f"""SELECT title, department, office, set_aside_type,
-                      posted_date, response_deadline, active, description_url
-               FROM opportunities
-               WHERE {where_sql}
-                 AND naics_code = ?
-               ORDER BY posted_date DESC""",
+            text(
+                f"""SELECT title, department, office, set_aside_type,
+                          posted_date, response_deadline, active, description_url
+                   FROM opportunities
+                   WHERE {where_sql}
+                     AND naics_code = :naics_code
+                   ORDER BY posted_date DESC"""
+            ),
             conn,
             params=params,
         )
@@ -418,13 +441,9 @@ def get_department_office_hierarchy(
     Returns columns: department, office, office_code, opps_count, active_opps.
     Sorted so departments cluster together (alphabetical), then offices
     within a department by descending opp count.
-
-    Note: we group on opportunities.office_code (the office that owns the
-    opportunity), NOT the opportunity_offices junction (which tracks which
-    *queries* surfaced it). That gives you a cleaner department→office tree.
     """
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    sql = f"""
+    sql = text(f"""
     SELECT
         COALESCE(NULLIF(department, ''), '(unknown department)') AS department,
         COALESCE(NULLIF(office, ''), '(unknown office)')         AS office,
@@ -435,8 +454,8 @@ def get_department_office_hierarchy(
     WHERE {where_sql}
     GROUP BY department, office, office_code
     ORDER BY department ASC, opps_count DESC
-    """
-    with _connect_readonly() as conn:
+    """)
+    with engine.connect() as conn:
         return pd.read_sql_query(sql, conn, params=params)
 
 
@@ -453,7 +472,7 @@ def get_opportunities_by_department_summary(
     Columns: department, opps_count, active_opps, office_count.
     """
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    sql = f"""
+    sql = text(f"""
     SELECT
         COALESCE(NULLIF(department, ''), '(unknown department)') AS department,
         COUNT(*) AS opps_count,
@@ -463,8 +482,8 @@ def get_opportunities_by_department_summary(
     WHERE {where_sql}
     GROUP BY department
     ORDER BY opps_count DESC
-    """
-    with _connect_readonly() as conn:
+    """)
+    with engine.connect() as conn:
         return pd.read_sql_query(sql, conn, params=params)
 
 
@@ -479,28 +498,24 @@ def get_opportunities_for_office(
     """
     Opportunities for a specific office. Pass office_code (preferred — unique)
     or office_name (fallback when an office has no code).
-
-    Returns the same slim column set as get_opportunities_for_naics_code so
-    both drill-down panels render consistently.
     """
     if not office_code and not office_name:
         return pd.DataFrame()
 
     where_sql, params = _build_opps_filters(active_only, date_from, date_to)
-    params = list(params)
     if office_code:
-        where_sql += " AND office_code = ?"
-        params.append(office_code)
+        where_sql += " AND office_code = :office_code"
+        params = {**params, "office_code": office_code}
     else:
-        where_sql += " AND office = ?"
-        params.append(office_name)
+        where_sql += " AND office = :office_name"
+        params = {**params, "office_name": office_name}
 
-    sql = f"""
+    sql = text(f"""
     SELECT title, department, office, naics_code, set_aside_type,
            posted_date, response_deadline, active, description_url
     FROM opportunities
     WHERE {where_sql}
     ORDER BY posted_date DESC
-    """
-    with _connect_readonly() as conn:
+    """)
+    with engine.connect() as conn:
         return pd.read_sql_query(sql, conn, params=params)

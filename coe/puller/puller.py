@@ -6,14 +6,17 @@ Main script that orchestrates the daily pull:
 1. Loads config (office codes, settings)
 2. Pulls ALL recent opportunities from SAM.gov (one API call with pagination)
 3. Filters client-side to only keep opportunities from tracked offices
-4. Upserts matches into SQLite with deduplication
+4. Upserts matches into Postgres with deduplication
 5. Logs a summary of what was pulled
 
+The puller now writes to Postgres via coe.puller.db (was SQLite). The
+connection URL is read from DATABASE_URL by coe.database.engine.
+
 Usage:
-    python sam_puller.py                      # Normal run using config.yaml
-    python sam_puller.py --config other.yaml  # Use a different config file
-    python sam_puller.py --force-lookback 14  # Override lookback to 14 days
-    python sam_puller.py --reset              # Clear DB and start fresh
+    python -m coe.puller.puller                      # Normal run using config.yaml
+    python -m coe.puller.puller --config other.yaml  # Use a different config file
+    python -m coe.puller.puller --force-lookback 14  # Override lookback to 14 days
+    python -m coe.puller.puller --reset              # Truncate DB tables and start fresh
 """
 
 import sys
@@ -26,7 +29,7 @@ from pathlib import Path
 import yaml
 
 from coe.puller.sam_client import SAMClient, SAMClientError
-from coe.puller.sqlite_db import Database
+from coe.puller.db import Database
 
 logger = logging.getLogger("sam_puller")
 
@@ -108,15 +111,19 @@ def run(config_path: str, force_lookback: int = None, reset: bool = False):
     logger.info(f"  Tracking {len(office_codes)} unique offices")
     logger.info("=" * 60)
 
-    # Initialize database
-    db_path = config_dir / settings.get("database", "opportunities.db")
+    # Initialize database. The DB path from config.yaml is now ignored;
+    # the puller writes to Postgres at DATABASE_URL (see coe.database).
+    # The path is read and logged purely for backward-compatibility with
+    # existing config files.
+    db_path_setting = settings.get("database", "opportunities.db")
+    logger.info(f"  Config db setting (informational only): {db_path_setting}")
 
-    # Handle --reset flag
-    if reset and db_path.exists():
+    db = Database()
+
+    # Handle --reset flag: TRUNCATE the puller tables on Postgres.
+    if reset:
         logger.warning("Resetting database (--reset flag)")
-        db_path.unlink()
-
-    db = Database(str(db_path))
+        db.reset()
 
     # Initialize API client
     client = SAMClient(

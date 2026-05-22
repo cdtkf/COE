@@ -1,8 +1,10 @@
 """
 app.py — Streamlit dashboard for the SAM.gov puller.
 
-Run from the repo root:
-    PYTHONPATH=. streamlit run coe/dashboard/app.py
+Run locally from the repo root:
+    streamlit run coe/dashboard/app.py
+(coe is now a proper package via pyproject.toml, so PYTHONPATH=. is no
+longer needed.)
 
 Layout:
     KPI row (always visible)
@@ -11,11 +13,32 @@ Layout:
         - NAICS           sector rollup + per-code drill-down
         - Offices         department→office hierarchy + per-office drill-down
         - All opps        full searchable opportunity table
+
+Configuration: this app reads the Postgres connection string from the
+DATABASE_URL environment variable. On Streamlit Cloud, the variable is
+populated from `st.secrets["DATABASE_URL"]` by the small bridge below,
+which must run BEFORE any import of `coe.database` (directly or via
+`coe.dashboard.queries`). Locally, set DATABASE_URL in your shell or
+.env and the bridge is a no-op.
 """
+import os
 from datetime import date, timedelta
 from typing import Optional
 
 import streamlit as st
+
+# ---- Streamlit secrets → environment bridge ----
+# Must run BEFORE the `from coe.dashboard import queries` line below,
+# because importing queries triggers `coe.database` which reads
+# DATABASE_URL at module load time.
+try:
+    if "DATABASE_URL" in st.secrets and "DATABASE_URL" not in os.environ:
+        os.environ["DATABASE_URL"] = st.secrets["DATABASE_URL"]
+except FileNotFoundError:
+    # No .streamlit/secrets.toml present (e.g. local dev without secrets
+    # file). The env var or coe.database's default will be used instead.
+    pass
+# ------------------------------------------------
 
 from coe.dashboard import queries
 from coe.dashboard.export import df_to_xlsx_bytes
