@@ -19,6 +19,7 @@ Usage:
     python -m coe.puller.puller --reset              # Truncate DB tables and start fresh
 """
 
+import os
 import sys
 import time
 import logging
@@ -68,9 +69,22 @@ def load_config(config_path: str) -> dict:
     with open(path) as f:
         config = yaml.safe_load(f)
 
-    # Validate required fields
-    if not config.get("api_key") or config["api_key"] == "YOUR_API_KEY_HERE":
-        logger.error("Please set your SAM.gov API key in config.yaml")
+    # Allow SAM_API_KEY env var to override the config file. Useful for
+    # CI (GitHub Actions) and any other environment where we don't want
+    # a real API key sitting in a committed file.
+    env_key = os.getenv("SAM_API_KEY")
+    if env_key:
+        config["api_key"] = env_key
+
+    # Validate required fields. Catch all known placeholder strings so
+    # `cp config.yaml.example config.yaml` without setting a real key
+    # fails loudly instead of pinging SAM.gov with a literal "YOUR-...".
+    _PLACEHOLDERS = {"", "YOUR_API_KEY_HERE", "YOUR-SAM-GOV-API-KEY"}
+    if not config.get("api_key") or config["api_key"] in _PLACEHOLDERS:
+        logger.error(
+            "SAM.gov API key not set. Either set the SAM_API_KEY env "
+            "var or fill in api_key in config.yaml."
+        )
         sys.exit(1)
 
     if not config.get("offices"):

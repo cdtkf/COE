@@ -1,0 +1,63 @@
+name: SAM.gov daily pull
+
+# When does this run?
+#   - On a schedule: weekday mornings at 11:00 UTC (6am EST / 7am EDT).
+#     GitHub may delay scheduled runs up to 30 min during peak load,
+#     which is fine for a daily pull.
+#   - On demand: trigger manually from the Actions tab via "Run workflow".
+on:
+  schedule:
+    - cron: "0 11 * * 1-5"
+  workflow_dispatch:
+
+# Don't queue multiple puller runs on top of each other. If a previous
+# run is still going when the schedule fires (rare, but possible if
+# SAM.gov is slow), the new one waits or gets cancelled rather than
+# both writing to Postgres at once.
+concurrency:
+  group: sam-gov-pull
+  cancel-in-progress: false
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # generous — typical run is well under 5 min
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Stage config.yaml from example
+        # config.yaml is gitignored (it normally holds secrets locally).
+        # In CI we don't need real secrets in the file — SAM_API_KEY
+        # comes from the env via load_config(), and DATABASE_URL is
+        # read directly by coe.database. We just need the offices list
+        # and settings, which the example file already contains.
+        run: cp config.yaml.example config.yaml
+
+      - name: Run the puller
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+        run: python -m coe.puller.puller
+
+      - name: Upload puller log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: puller-logs-${{ github.run_id }}
+          path: logs/
+          if-no-files-found: ignore
+          retention-days: 14
