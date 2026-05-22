@@ -49,6 +49,71 @@ XLSX_MIME = (
 
 st.set_page_config(page_title="COE — Puller Dashboard", layout="wide")
 
+# ---- Authentication gate ----
+# Shared-password gate: if `password` is in Streamlit secrets, prompt
+# for it once per session; otherwise (local dev) skip the gate and
+# surface a warning banner so the lack of auth is visible.
+#
+# Why a shared password instead of SSO? Setting up Microsoft Entra ID
+# OIDC requires Application Administrator access in the ReefPoint tenant,
+# which we don't have. For a small internal team viewing already-public
+# SAM.gov data filtered to our offices, a shared password is enough to
+# keep random internet visitors out — which is the actual threat model.
+# Upgrade to SSO later if/when IT can register an Entra app.
+import hmac  # noqa: E402  (kept next to its single user for context)
+
+
+def _password_configured() -> bool:
+    """True iff Streamlit secrets carry a `password` key."""
+    try:
+        return "password" in st.secrets
+    except FileNotFoundError:
+        return False
+
+
+def _check_password(entered: str) -> bool:
+    """Constant-time compare against the configured password.
+
+    `hmac.compare_digest` doesn't short-circuit on the first mismatched
+    character, so an attacker can't learn the password byte-by-byte
+    from timing differences. Overkill for a five-person internal tool,
+    but it's the canonical Streamlit pattern and a good habit.
+    """
+    expected = st.secrets.get("password", "")
+    return hmac.compare_digest(entered.encode(), expected.encode())
+
+
+if _password_configured():
+    if not st.session_state.get("password_correct"):
+        st.title("Contract Opportunity Engine")
+        st.write("Enter the dashboard password to continue.")
+        entered = st.text_input(
+            "Password",
+            type="password",
+            key="pw_input",
+        )
+        if entered:
+            if _check_password(entered):
+                st.session_state["password_correct"] = True
+                st.rerun()
+            else:
+                st.error("Incorrect password.")
+        st.stop()
+
+    # Authenticated — small sign-out control in the sidebar.
+    with st.sidebar:
+        if st.button("Sign out", key="pw_logout"):
+            st.session_state["password_correct"] = False
+            st.rerun()
+else:
+    st.warning(
+        "Running without authentication. This is expected on a local "
+        "dev machine (no `password` in `.streamlit/secrets.toml`); "
+        "do not deploy this app to the public internet in this state.",
+        icon="⚠️",
+    )
+# ---- End auth gate ----
+
 st.title("Contract Opportunity Engine — Puller Dashboard")
 st.caption("Live view into what the SAM.gov puller has collected.")
 
